@@ -1,3 +1,0 @@
-[submodule "iot_mcu_lib"]
-	path = iot_mcu_lib
-	url = https://github.com/Lindem-Data-Acquisition-AS/iot_mcu_lib
