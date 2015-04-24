@@ -915,6 +915,36 @@ lwIPNetworkConfigChange(uint32_t ui32IPAddr, uint32_t ui32NetMask,
     tcpip_callback(lwIPPrivateNetworkConfigChange, (void *)ui32IPMode);
 }
 
+u8_t dhcpget_state()
+{
+    return g_sNetIF.dhcp->state;
+}
+
+void sw_dhcp_start()
+{
+	dhcp_start(&g_sNetIF);
+}
+
+void sw_dhcp_renew()
+{
+	dhcp_renew(&g_sNetIF);
+}
+
+void sw_dhcp_stop()
+{
+	dhcp_stop(&g_sNetIF);
+}
+
+void sw_dhcp_inform()
+{
+	dhcp_inform(&g_sNetIF);
+}
+
+void sw_setIPMode(uint32_t mode)
+{
+	g_ui32IPMode = mode;
+}
+
 //*****************************************************************************
 //
 // Close the Doxygen group.
