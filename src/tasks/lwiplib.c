@@ -945,6 +945,11 @@ void sw_setIPMode(uint32_t mode)
 	g_ui32IPMode = mode;
 }
 
+void sw_setIPMode(uint32_t mode)
+{
+	g_ui32IPMode = mode;
+}
+
 //*****************************************************************************
 //
 // Close the Doxygen group.
