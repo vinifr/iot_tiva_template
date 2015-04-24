@@ -186,10 +186,14 @@ lwIPLinkDetect(void)
     //
     // Clear any address information from the network interface.
     //
-    ip_addr.addr = 0;
-    net_mask.addr = 0;
-    gw_addr.addr = 0;
-    netif_set_addr(&g_sNetIF, &ip_addr, &net_mask, &gw_addr);
+    
+    if(g_ui32IPMode == IPADDR_USE_DHCP)
+    {
+	    ip_addr.addr = 0;
+	    net_mask.addr = 0;
+	    gw_addr.addr = 0;
+	    netif_set_addr(&g_sNetIF, &ip_addr, &net_mask, &gw_addr);
+    }
 
     //
     // See if there is a link now.
