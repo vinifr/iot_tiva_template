@@ -536,61 +536,83 @@
 
 
 
-/*
-   ---------------------------------------
-   ---------- Debugging options ----------
-   ---------------------------------------
-*/
-/* Define default values for unconfigured parameters. */
-// 1 == To suppress some errors for now (no debug output)
-#define LWIP_NOASSERT                   1
-#define LWIP_DEBUG                      0
+//*****************************************************************************
+//
+// ---------- Debugging options ----------
+//
+//*****************************************************************************
+#ifdef DEBUG
+#define U8_F "c"
+#define S8_F "c"
+#define X8_F "02x"
+#define U16_F "u"
+#define S16_F "d"
+#define X16_F "x"
+#define U32_F "u"
+#define S32_F "d"
+#define X32_F "x"
+extern void UARTprintf(const char *pcString, ...);
+#define LWIP_PLATFORM_DIAG(msg) UARTprintf msg
+#define LWIP_PLATFORM_ASSERT(msg)                                             \
+    UARTprintf("ASSERT FAIL at line %d of %s: %s\n", __LINE__, __FILE__, msg)
+#define LWIP_DEBUG 1
+#endif
 
-#define LWIP_DBG_MIN_LEVEL              LWIP_DBG_LEVEL_ALL
+//#define LWIP_DBG_MIN_LEVEL              LWIP_DBG_LEVEL_OFF
+//#define LWIP_DBG_MIN_LEVEL              LWIP_DBG_LEVEL_ON
+#define LWIP_DBG_MIN_LEVEL				  LWIP_DBG_LEVEL_ALL
 //#define LWIP_DBG_MIN_LEVEL              LWIP_DBG_LEVEL_WARNING
 //#define LWIP_DBG_MIN_LEVEL              LWIP_DBG_LEVEL_SERIOUS
 //#define LWIP_DBG_MIN_LEVEL              LWIP_DBG_LEVEL_SEVERE
 
-//#define LWIP_DBG_TYPES_ON               LWIP_DBG_ON
-#define LWIP_DBG_TYPES_ON               (LWIP_DBG_ON|LWIP_DBG_TRACE|LWIP_DBG_STATE|LWIP_DBG_FRESH)
+#define LWIP_DBG_TYPES_ON               LWIP_DBG_ON
+//#define LWIP_DBG_TYPES_ON               (LWIP_DBG_ON|LWIP_DBG_TRACE|        \
+                                           LWIP_DBG_STATE|LWIP_DBG_FRESH)
 
-#if LWIP_DEBUG
-#define ETHARP_DEBUG                    LWIP_DBG_OFF    // ETHARP_DEBUG: Enable debugging in etharp.c.
-#define NETIF_DEBUG                     LWIP_DBG_OFF    // NETIF_DEBUG: Enable debugging in netif.c.
-#define PBUF_DEBUG                      LWIP_DBG_OFF    // PBUF_DEBUG: Enable debugging in pbuf.c.
-#define API_LIB_DEBUG                   LWIP_DBG_OFF    // API_LIB_DEBUG: Enable debugging in api_lib.c.
-#define API_MSG_DEBUG                   LWIP_DBG_OFF    // API_MSG_DEBUG: Enable debugging in api_msg.c.
-#define SOCKETS_DEBUG                   LWIP_DBG_OFF    // SOCKETS_DEBUG: Enable debugging in sockets.c.
-#define ICMP_DEBUG                      LWIP_DBG_OFF    // ICMP_DEBUG: Enable debugging in icmp.c.
-#define IGMP_DEBUG                      LWIP_DBG_OFF    // IGMP_DEBUG: Enable debugging in igmp.c.
-#define INET_DEBUG                      LWIP_DBG_OFF    // INET_DEBUG: Enable debugging in inet.c.
-#define IP_DEBUG                        LWIP_DBG_OFF
-#define IP_REASS_DEBUG                  LWIP_DBG_OFF    // IP_REASS_DEBUG: Enable debugging in ip_frag.c for both frag & reass.
-#define RAW_DEBUG                       LWIP_DBG_OFF    // RAW_DEBUG: Enable debugging in raw.c.
-#define MEM_DEBUG                       LWIP_DBG_OFF    // MEM_DEBUG: Enable debugging in mem.c.
-#define MEMP_DEBUG                      LWIP_DBG_OFF    // MEMP_DEBUG: Enable debugging in memp.c.
-#define SYS_DEBUG                       LWIP_DBG_OFF    // SYS_DEBUG: Enable debugging in sys.c.
-#define TIMERS_DEBUG                    LWIP_DBG_OFF    // TIMERS_DEBUG: Enable debugging in timers.c.
+#define LWIP_STATS						1
+#define LWIP_STATS_DISPLAY				1
+#define SYS_STATS						1
+#define MEM_STATS						1
+#define MEMP_STATS						1
+//#define PBUF_STATS						1
 
-#define TCP_DEBUG                       LWIP_DBG_OFF
-#define TCP_INPUT_DEBUG                 LWIP_DBG_OFF    // TCP_INPUT_DEBUG: Enable debugging in tcp_in.c for incoming debug.
-#define TCP_FR_DEBUG                    LWIP_DBG_OFF    // TCP_FR_DEBUG: Enable debugging in tcp_in.c for fast retransmit.
-#define TCP_RTO_DEBUG                   LWIP_DBG_OFF
-#define TCP_CWND_DEBUG                  LWIP_DBG_OFF
-#define TCP_WND_DEBUG                   LWIP_DBG_OFF    // TCP_WND_DEBUG: Enable debugging in tcp_in.c for window updating.
-#define TCP_OUTPUT_DEBUG                LWIP_DBG_OFF    // TCP_OUTPUT_DEBUG: Enable debugging in tcp_out.c output functions.
-#define TCP_RST_DEBUG                   LWIP_DBG_OFF
-#define TCP_QLEN_DEBUG                  LWIP_DBG_OFF
-
-#define UDP_DEBUG                       LWIP_DBG_OFF
-#define TCPIP_DEBUG                     LWIP_DBG_OFF    // TCPIP_DEBUG: Enable debugging in tcpip.c.
-#define PPP_DEBUG                       LWIP_DBG_OFF
-#define SLIP_DEBUG                      LWIP_DBG_OFF    // SLIP_DEBUG: Enable debugging in slipif.c.
-#define DHCP_DEBUG                      LWIP_DBG_OFF    // DHCP_DEBUG: Enable debugging in dhcp.c.
-#define AUTOIP_DEBUG                    LWIP_DBG_OFF    // AUTOIP_DEBUG: Enable debugging in autoip.c.
-#define SNMP_MSG_DEBUG                  LWIP_DBG_OFF
-#define SNMP_MIB_DEBUG                  LWIP_DBG_OFF
-#define DNS_DEBUG                       LWIP_DBG_OFF
-#endif
+#define NETIFUP_DEBUG						LWIP_DBG_ON
+//#define ETHARP_DEBUG                    LWIP_DBG_ON     // default is OFF
+//#define NETIF_DEBUG                     LWIP_DBG_ON
+//#define PBUF_DEBUG                      LWIP_DBG_ON
+//#define API_LIB_DEBUG                   LWIP_DBG_OFF
+//#define API_MSG_DEBUG                   LWIP_DBG_OFF
+#define SOCKETS_DEBUG                   LWIP_DBG_ON
+#define SOCKETS_RECV_DEBUG				LWIP_DBG_OFF
+#define HTTPD_DEBUG                     LWIP_DBG_ON
+#define ICMP_DEBUG                      LWIP_DBG_ON
+//#define IGMP_DEBUG                      LWIP_DBG_OFF
+//#define INET_DEBUG                      LWIP_DBG_OFF
+//#define IP_DEBUG                        LWIP_DBG_ON
+//#define IP6_DEBUG						LWIP_DBG_ON
+//#define IP_REASS_DEBUG                  LWIP_DBG_OFF
+//#define RAW_DEBUG                       LWIP_DBG_OFF
+#define MEM_DEBUG                       LWIP_DBG_ON
+#define MEMP_DEBUG                      LWIP_DBG_ON
+//#define SYS_DEBUG                       LWIP_DBG_OFF
+//#define TCP_DEBUG                       LWIP_DBG_ON
+//#define TCP_INPUT_DEBUG                 LWIP_DBG_ON
+//#define TCP_FR_DEBUG                    LWIP_DBG_OFF
+//#define TCP_RTO_DEBUG                   LWIP_DBG_OFF
+//#define TCP_CWND_DEBUG                  LWIP_DBG_OFF
+//#define TCP_WND_DEBUG                   LWIP_DBG_OFF
+//#define TCP_OUTPUT_DEBUG                LWIP_DBG_ON
+//#define TCP_RST_DEBUG                   LWIP_DBG_ON
+//#define TCP_QLEN_DEBUG                  LWIP_DBG_OFF
+//#define UDP_DEBUG                       LWIP_DBG_ON     // default is OFF
+//#define TCPIP_DEBUG                     LWIP_DBG_ON
+//#define PPP_DEBUG                       LWIP_DBG_OFF
+//#define SLIP_DEBUG                      LWIP_DBG_OFF
+//#define DHCP_DEBUG                      LWIP_DBG_ON     // default is OFF
+//#define AUTOIP_DEBUG                    LWIP_DBG_ON
+//#define SNMP_MSG_DEBUG                  LWIP_DBG_OFF
+//#define SNMP_MIB_DEBUG                  LWIP_DBG_OFF
+//#define DNS_DEBUG                       LWIP_DBG_OFF
+#define HTTPSD_DEBUG					LWIP_DBG_OFF
 
 #endif /* __LWIPOPTS_H__ */
