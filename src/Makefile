@@ -92,10 +92,17 @@ CFLAGS += -I ${ROOT}/${lwIP_PATH}/src/include/ipv4
 CFLAGS += -I ${ROOT}/${lwIP_PATH}/src/include/netif
 #include lwIP apps
 CFLAGS += -I ${ROOT}/${lwIP_PATH}/apps
+CFLAGS += -I ${ROOT}/${lwIP_PATH}/cwebsock
 #include jsmn
 CFLAGS += -I ${ROOT}/${jsmn_PATH}
 
+# Print library
 SRC += ${ROOT}/${TIVAWARE_PATH}/driverlib/uartstdio.c
+
+# websocket source
+SRC += $(wildcard ${ROOT}/${lwIP_PATH}/cwebsock/*.c)
+
+
 #include source directories/files
 SRC += $(wildcard ${ROOT}/${SRC_PATH}/*.c)
 SRC += $(wildcard ${ROOT}/${SRC_PATH}/tasks/*.c)
@@ -118,6 +125,7 @@ SRC += $(wildcard ${ROOT}/${lwIP_PATH}/apps/httpserver_raw/httpd.c)
 SRC += $(wildcard ${ROOT}/${lwIP_PATH}/apps/httpserver_raw/httpd_post.c)
 SRC += $(wildcard ${ROOT}/${lwIP_PATH}/apps/httpserver_raw/fs.c)
 SRC += $(wildcard ${ROOT}/${lwIP_PATH}/apps/httpserver_raw/LDA_debug.c)
+SRC += $(wildcard ${ROOT}/${lwIP_PATH}/apps/httpserver_raw/websockd.c)
 
 #include jsmn
 SRC += $(wildcard ${ROOT}/${jsmn_PATH}/jsmn.c)

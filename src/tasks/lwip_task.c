@@ -46,9 +46,11 @@ SetupServices(void *pvArg)
     //
     // Initialize the sample httpd server.
     //
-    httpd_init();
-
+    //httpd_init();
     //http_server_netconn_init();
+    
+    // Initialize websocket server
+    websockd_init();
 
 }
 

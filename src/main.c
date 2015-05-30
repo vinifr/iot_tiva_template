@@ -102,6 +102,36 @@ pin_init(void) {
 
 }
 
+//*****************************************************************************
+//
+// Configure the UART and its pins.  This must be called before UARTprintf().
+//
+//*****************************************************************************
+void ConfigureUART(void)
+{
+    //
+    // Enable the GPIO Peripheral used by the UART.
+    //
+    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
+
+    //
+    // Enable UART0.
+    //
+    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
+
+    //
+    // Configure GPIO Pins for UART mode.
+    //
+    ROM_GPIOPinConfigure(GPIO_PA0_U0RX);
+    ROM_GPIOPinConfigure(GPIO_PA1_U0TX);
+    ROM_GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
+
+    //
+    // Initialize the UART for console I/O.
+    //
+    UARTStdioConfig(0, 115200, g_ui32SysClock);
+}
+
 int
 main(void) {
 
@@ -114,6 +144,11 @@ main(void) {
 
     // Initialize the device pinout appropriately for this board.
     pin_init();
+    
+    //
+    // Initialize the UART and write status.
+    //
+    ConfigureUART();
 
     // Make sure the main oscillator is enabled because this is required by
     // the PHY.  The system must have a 25MHz crystal attached to the OSC
@@ -138,12 +173,12 @@ main(void) {
     }
 
     // Create the hello world task.
-    if (hello_world_init() != 0) {
-
+    /*if (hello_world_init() != 0) {
         while (1) {
         }
-
-    }
+    }*/
+    
+    UARTprintf("FreeRTOS + Lwip\n");
 
     // Start the scheduler. This should not return.
     vTaskStartScheduler();
