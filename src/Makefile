@@ -68,7 +68,7 @@ CP = ${TOOLCHAIN}-objcopy
 OD = ${TOOLCHAIN}-objdump
 
 CFLAGS  = -mthumb -mcpu=$(CPU) -mfpu=$(FPU) -mfloat-abi=$(FABI)
-CFLAGS += -Os -ffunction-sections -fdata-sections
+CFLAGS += -Os -ffunction-sections -fdata-sections --specs=rdimon.specs
 CFLAGS += -MD -std=gnu99 -Wall -Wno-char-subscripts -Wno-address
 CFLAGS += -DPART_$(PART) -c -DTARGET_IS_TM4C129_RA0
 CFLAGS += -c -g
@@ -133,6 +133,9 @@ SRC += $(wildcard ${ROOT}/${jsmn_PATH}/jsmn.c)
 LIB_GCC_PATH    = ${shell ${CC} ${CFLAGS} -print-libgcc-file-name}
 LIBC_PATH       = ${shell ${CC} ${CFLAGS} -print-file-name=libc.a}
 LIBM_PATH       = ${shell ${CC} ${CFLAGS} -print-file-name=libm.a}
+LIBG_PATH       = ${shell ${CC} ${CFLAGS} -print-file-name=libg.a}
+LIBBRDMON_PATH  = ${shell ${CC} ${CFLAGS} -print-file-name=librdimon.a}
+LIBNOSYS_PATH   = ${shell ${CC} ${CFLAGS} -print-file-name=libnosys.a} 
 LFLAGS          = --gc-sections
 CPFLAGS         = -Obinary
 ODFLAGS         = -S
@@ -163,7 +166,7 @@ all: $(OBJS) ${PROJECT_NAME}.axf ${PROJECT_NAME}
 	@$(ECHO)
 
 ${PROJECT_NAME}.axf: $(OBJS)
-	@$(LD) -T $(LINKER_FILE) $(LFLAGS) -o ${ROOT}/${BIN_PATH}/${PROJECT_NAME}.axf $(OBJS) $(LIBM_PATH) $(LIBC_PATH) $(LIB_GCC_PATH) ${ROOT}/${TIVAWARE_PATH}/driverlib/${COMPILER}/libdriver.a
+	@$(LD) -T $(LINKER_FILE) $(LFLAGS) -o ${ROOT}/${BIN_PATH}/${PROJECT_NAME}.axf $(OBJS) $(LIBC_PATH) $(LIB_GCC_PATH) ${ROOT}/${TIVAWARE_PATH}/driverlib/${COMPILER}/libdriver.a
 
 ${PROJECT_NAME}: ${PROJECT_NAME}.axf
 	@$(CP) $(CPFLAGS) ${ROOT}/${BIN_PATH}/${PROJECT_NAME}.axf ${ROOT}/${BIN_PATH}/${PROJECT_NAME}.bin
