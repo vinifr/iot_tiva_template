@@ -95,6 +95,7 @@ CFLAGS += -I ${ROOT}/${lwIP_PATH}/apps
 #include jsmn
 CFLAGS += -I ${ROOT}/${jsmn_PATH}
 
+SRC += ${ROOT}/${TIVAWARE_PATH}/driverlib/uartstdio.c
 #include source directories/files
 SRC += $(wildcard ${ROOT}/${SRC_PATH}/*.c)
 SRC += $(wildcard ${ROOT}/${SRC_PATH}/tasks/*.c)
@@ -110,7 +111,7 @@ SRC += $(wildcard ${ROOT}/${lwIP_PATH}/src/core/ipv4/*.c)
 #SRC += $(wildcard ${ROOT}/${lwIP_PATH}/src/core/ipv6/*.c)
 SRC += $(wildcard ${ROOT}/${lwIP_PATH}/src/core/snmp/*.c)
 SRC += $(wildcard ${ROOT}/${lwIP_PATH}/src/netif/*.c)
-SRC += $(wildcard ${ROOT}/${lwIP_PATH}/src/netif/ppp/*.c)
+#SRC += $(wildcard ${ROOT}/${lwIP_PATH}/src/netif/ppp/*.c)
 SRC += $(wildcard ${ROOT}/${lwIP_PATH}/src/api/*.c)
 #include lwIP apps
 SRC += $(wildcard ${ROOT}/${lwIP_PATH}/apps/httpserver_raw/httpd.c)
