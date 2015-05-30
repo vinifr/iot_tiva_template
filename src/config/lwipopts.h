@@ -552,7 +552,7 @@
 //#define S32_F "d"
 //#define X32_F "x"
 extern void UARTprintf(const char *pcString, ...);
-//#define LWIP_PLATFORM_DIAG(msg) UARTprintf msg
+#define LWIP_PLATFORM_DIAG(msg) UARTprintf msg
 #define LWIP_PLATFORM_ASSERT(msg)                                             \
     UARTprintf("ASSERT FAIL at line %d of %s: %s\n", __LINE__, __FILE__, msg)
 #define LWIP_DEBUG 1
