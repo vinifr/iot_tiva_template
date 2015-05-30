@@ -30,6 +30,7 @@
 #include "lwiplib.h"
 #include "httpserver_raw/httpd.h"
 #include "httpserver_raw/fsdata.h"
+#include "httpserver_raw/websockd.h"
 #include "led_task.h"
 #include "lwip_task.h"
 
@@ -62,10 +63,7 @@ SetupServices(void *pvArg)
 uint32_t
 lwIPTaskInit(void)
 {
-    uint8_t pui8MAC[6];
-    uint8_t hex_array[16] = {
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
-    };
+    uint8_t pui8MAC[6];    
 
     uint32_t ui32User0, ui32User1;
     ROM_FlashUserGet(&ui32User0, &ui32User1);

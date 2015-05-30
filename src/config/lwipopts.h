@@ -295,7 +295,7 @@
 
 #if LWIP_TCP
 #define TCP_TTL                         (IP_DEFAULT_TTL)
-#define TCP_WND                         (4 * TCP_MSS)   // default is (4 * TCP_MSS)
+#define TCP_WND                         (2 * TCP_MSS)   // default is (4 * TCP_MSS)
 #define TCP_MAXRTX                      12
 #define TCP_SYNMAXRTX                   6
 #define TCP_QUEUE_OOSEQ                 (LWIP_TCP)
@@ -542,17 +542,17 @@
 //
 //*****************************************************************************
 #ifdef DEBUG
-#define U8_F "c"
-#define S8_F "c"
-#define X8_F "02x"
-#define U16_F "u"
-#define S16_F "d"
-#define X16_F "x"
-#define U32_F "u"
-#define S32_F "d"
-#define X32_F "x"
+//#define U8_F "c"
+//#define S8_F "c"
+//#define X8_F "02x"
+//#define U16_F "u"
+//#define S16_F "d"
+//#define X16_F "x"
+//#define U32_F "u"
+//#define S32_F "d"
+//#define X32_F "x"
 extern void UARTprintf(const char *pcString, ...);
-#define LWIP_PLATFORM_DIAG(msg) UARTprintf msg
+//#define LWIP_PLATFORM_DIAG(msg) UARTprintf msg
 #define LWIP_PLATFORM_ASSERT(msg)                                             \
     UARTprintf("ASSERT FAIL at line %d of %s: %s\n", __LINE__, __FILE__, msg)
 #define LWIP_DEBUG 1
@@ -560,36 +560,27 @@ extern void UARTprintf(const char *pcString, ...);
 
 //#define LWIP_DBG_MIN_LEVEL              LWIP_DBG_LEVEL_OFF
 //#define LWIP_DBG_MIN_LEVEL              LWIP_DBG_LEVEL_ON
-#define LWIP_DBG_MIN_LEVEL				  LWIP_DBG_LEVEL_ALL
+#define LWIP_DBG_MIN_LEVEL		 LWIP_DBG_LEVEL_ALL
 //#define LWIP_DBG_MIN_LEVEL              LWIP_DBG_LEVEL_WARNING
 //#define LWIP_DBG_MIN_LEVEL              LWIP_DBG_LEVEL_SERIOUS
 //#define LWIP_DBG_MIN_LEVEL              LWIP_DBG_LEVEL_SEVERE
 
 #define LWIP_DBG_TYPES_ON               LWIP_DBG_ON
-//#define LWIP_DBG_TYPES_ON               (LWIP_DBG_ON|LWIP_DBG_TRACE|        \
-                                           LWIP_DBG_STATE|LWIP_DBG_FRESH)
 
-#define LWIP_STATS						1
-#define LWIP_STATS_DISPLAY				1
-#define SYS_STATS						1
-#define MEM_STATS						1
-#define MEMP_STATS						1
-//#define PBUF_STATS						1
-
-#define NETIFUP_DEBUG						LWIP_DBG_ON
+#define NETIFUP_DEBUG			LWIP_DBG_ON
 //#define ETHARP_DEBUG                    LWIP_DBG_ON     // default is OFF
 //#define NETIF_DEBUG                     LWIP_DBG_ON
 //#define PBUF_DEBUG                      LWIP_DBG_ON
 //#define API_LIB_DEBUG                   LWIP_DBG_OFF
 //#define API_MSG_DEBUG                   LWIP_DBG_OFF
 #define SOCKETS_DEBUG                   LWIP_DBG_ON
-#define SOCKETS_RECV_DEBUG				LWIP_DBG_OFF
+#define SOCKETS_RECV_DEBUG		LWIP_DBG_OFF
 #define HTTPD_DEBUG                     LWIP_DBG_ON
 #define ICMP_DEBUG                      LWIP_DBG_ON
 //#define IGMP_DEBUG                      LWIP_DBG_OFF
 //#define INET_DEBUG                      LWIP_DBG_OFF
 //#define IP_DEBUG                        LWIP_DBG_ON
-//#define IP6_DEBUG						LWIP_DBG_ON
+//#define IP6_DEBUG			LWIP_DBG_ON
 //#define IP_REASS_DEBUG                  LWIP_DBG_OFF
 //#define RAW_DEBUG                       LWIP_DBG_OFF
 #define MEM_DEBUG                       LWIP_DBG_ON
@@ -613,6 +604,6 @@ extern void UARTprintf(const char *pcString, ...);
 //#define SNMP_MSG_DEBUG                  LWIP_DBG_OFF
 //#define SNMP_MIB_DEBUG                  LWIP_DBG_OFF
 //#define DNS_DEBUG                       LWIP_DBG_OFF
-#define HTTPSD_DEBUG					LWIP_DBG_OFF
+#define HTTPSD_DEBUG			LWIP_DBG_OFF
 
 #endif /* __LWIPOPTS_H__ */

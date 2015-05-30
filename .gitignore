@@ -9,6 +9,7 @@
 *.tra
 *.htm
 *.lnp
+*~
 
 # Libraries
 #*.lib
@@ -26,3 +27,6 @@
 *.app
 *.elf
 *.hex
+*.axf
+*.bin
+*.lst

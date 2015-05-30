@@ -33,9 +33,11 @@
 #include "driverlib/rom.h"
 #include "driverlib/rom_map.h"
 #include "driverlib/sysctl.h"
+#include "driverlib/uartstdio.h"
 #include "led_task.h"
 #include "lwip_task.h"
 #include "hello_world_task.h"
+#include "httpserver_raw/LDA_debug.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
