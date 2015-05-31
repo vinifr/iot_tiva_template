@@ -87,6 +87,8 @@
 #define SMEMCPY(dst,src,len)            memcpy(dst,src,len)
 
 
+// Websocket options
+#define LWIP_WEBSOCKDPING		1
 
 /*
    ------------------------------------
@@ -576,7 +578,7 @@ extern void UARTprintf(const char *pcString, ...);
 //#define API_MSG_DEBUG                   LWIP_DBG_OFF
 #define SOCKETS_DEBUG                   LWIP_DBG_ON
 #define SOCKETS_RECV_DEBUG		LWIP_DBG_OFF
-#define HTTPD_DEBUG                     LWIP_DBG_ON
+#define HTTPD_DEBUG                     LWIP_DBG_OFF
 #define ICMP_DEBUG                      LWIP_DBG_ON
 //#define IGMP_DEBUG                      LWIP_DBG_OFF
 //#define INET_DEBUG                      LWIP_DBG_OFF

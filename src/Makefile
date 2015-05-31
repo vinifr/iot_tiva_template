@@ -206,3 +206,5 @@ debug: flash
 	-c "source [find target/stellaris.cfg]" \
 	"gdb_port pipe; log_output openocd.log"; monitor reset halt'\
 	 $(ROOT)/$(BIN_PATH)/$(PROJECT_NAME).axf
+flash2:
+	lm4flash $(ROOT)/$(BIN_PATH)/$(PROJECT_NAME).axf
