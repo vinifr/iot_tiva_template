@@ -579,7 +579,7 @@ extern void UARTprintf(const char *pcString, ...);
 #define SOCKETS_DEBUG                   LWIP_DBG_ON
 #define SOCKETS_RECV_DEBUG		LWIP_DBG_OFF
 #define HTTPD_DEBUG                     LWIP_DBG_OFF
-#define ICMP_DEBUG                      LWIP_DBG_ON
+//#define ICMP_DEBUG                      LWIP_DBG_ON
 //#define IGMP_DEBUG                      LWIP_DBG_OFF
 //#define INET_DEBUG                      LWIP_DBG_OFF
 //#define IP_DEBUG                        LWIP_DBG_ON

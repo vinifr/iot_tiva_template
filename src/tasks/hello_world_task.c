@@ -45,9 +45,9 @@ hello_world_task(void *pvParameters) {
 
       //ip_addr = lwIPLocalIPAddrGet();
       send_debug_message( "Hello world!" , DEBUG_MESSAGE_DEFAULT );
-      //send_debug_packet(ip_addr, 4, DEBUG_MESSAGE_LWIP);
+      //wsMakeFrame();
 
-        vTaskDelay(5000 / portTICK_RATE_MS);
+        vTaskDelay(3000 / portTICK_RATE_MS);
     }
 
 }
