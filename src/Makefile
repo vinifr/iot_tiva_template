@@ -117,7 +117,7 @@ SRC += $(wildcard ${ROOT}/${lwIP_PATH}/ports/${LIB_PORT_NAME}/netif/*.c)
 SRC += $(wildcard ${ROOT}/${lwIP_PATH}/src/core/*.c)
 SRC += $(wildcard ${ROOT}/${lwIP_PATH}/src/core/ipv4/*.c)
 #SRC += $(wildcard ${ROOT}/${lwIP_PATH}/src/core/ipv6/*.c)
-SRC += $(wildcard ${ROOT}/${lwIP_PATH}/src/core/snmp/*.c)
+#SRC += $(wildcard ${ROOT}/${lwIP_PATH}/src/core/snmp/*.c)
 SRC += $(wildcard ${ROOT}/${lwIP_PATH}/src/netif/*.c)
 #SRC += $(wildcard ${ROOT}/${lwIP_PATH}/src/netif/ppp/*.c)
 SRC += $(wildcard ${ROOT}/${lwIP_PATH}/src/api/*.c)
@@ -192,8 +192,8 @@ flash: all
 	-c "reset halt" \
 	-c "flash info 0" \
 	-c "flash banks" \
-	-c "flash write_image erase $(ROOT)/$(BIN_PATH)/$(PROJECT_NAME).axf" \
-	-c "verify_image $(ROOT)/$(BIN_PATH)/$(PROJECT_NAME).axf"
+	-c "flash write_image erase $(ROOT)/$(BIN_PATH)/$(PROJECT_NAME).bin" \
+	-c "verify_image $(ROOT)/$(BIN_PATH)/$(PROJECT_NAME).bin"
 	-c "reset" \
 	-c "shutdown"
 
@@ -208,4 +208,4 @@ debug: flash
 	"gdb_port pipe; log_output openocd.log"; monitor reset halt'\
 	 $(ROOT)/$(BIN_PATH)/$(PROJECT_NAME).axf
 flash2:
-	lm4flash $(ROOT)/$(BIN_PATH)/$(PROJECT_NAME).axf
+	lm4flash $(ROOT)/$(BIN_PATH)/$(PROJECT_NAME).bin
