@@ -88,7 +88,7 @@
 
 
 // Websocket options
-#define LWIP_WEBSOCKDPING		1
+//#define LWIP_WEBSOCKDPING		1
 
 /*
    ------------------------------------
