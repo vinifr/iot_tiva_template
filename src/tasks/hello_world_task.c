@@ -20,7 +20,7 @@
  */
 
 #include <stdint.h>
-#include <stdbool.h>
+#include "main.h"
 #include "inc/hw_memmap.h"
 #include "inc/hw_types.h"
 #include "driverlib/gpio.h"
@@ -33,21 +33,102 @@
 #include "queue.h"
 #include "semphr.h"
 #include "httpserver_raw/LDA_debug.h"
+#include "driverlib/uartstdio.h"
 
-#define STACKSIZE_HELLO_WORLD_TASK       128
+
+#define STACKSIZE_HELLO_WORLD_TASK       1024
+
+#include <stdio.h>  //printf
+#include <string.h> //strlen
+//#include <assert.h> //asert
+#include <errno.h>  //errno
+
+#include "rpc.h"
+
+#define MY_BUF_SIZE 160
+char g_input[MY_BUF_SIZE];
+char g_output[MY_BUF_SIZE];
+
+int data_ok;
+
+
+int websocket_get_data(char *data, int dataLength)
+{
+    int ret = 0;
+    if (dataLength > 0) {
+	memcpy(g_input, data, dataLength);
+	ret = 1;
+	data_ok = 1;
+    }
+    return ret;
+}
+
+//rpc prototype
+static
+workstatus_t echo(const char* const pcJSONString, const jsmntok_t* const ps_argtok,
+          const jsmntok_t* const ps_alltoks, char* pcResponse, int RespMaxLen);
+
+//rpc sig
+static methodtable_entry_t test_methods[] = {
+    {"echo", "(S)P", echo},
+};
+
+//rpc body
+static
+workstatus_t echo(const char* const pcJSONString, const jsmntok_t* const ps_argtok,
+          const jsmntok_t* const ps_alltoks, char* pcResponse, int iRespMaxLen)
+{
+    //estimate
+    const jsmntok_t* psTokEchoValue =
+                &ps_alltoks[(&ps_alltoks[ps_argtok->first_child])->first_child];
+    if (pcResponse && iRespMaxLen < (2 + psTokEchoValue->end - psTokEchoValue->start)) {
+        return WORKSTATUS_RPC_ERROR_OUTOFRESBUF;
+    }
+
+    //do function
+    //nothing
+
+    //write retval
+    if (pcResponse) {
+        snprintf(pcResponse, iRespMaxLen, "\"%.*s\"", psTokEchoValue->end - psTokEchoValue->start,
+                                            &pcJSONString[psTokEchoValue->start]);
+    }
+
+    //return status
+    return WORKSTATUS_NO_ERROR;
+}
 
 static void
 hello_world_task(void *pvParameters) {
 
     //uint32_t ip_addr;
+    data_ok = 0;
+    workstatus_t eStatus = rpc_install_methods(test_methods, sizeof(test_methods)/sizeof(test_methods[0]));
+    
+    if(eStatus != WORKSTATUS_NO_ERROR) {
+	assert(0);
+    }
 
     while (1) {
-
       //ip_addr = lwIPLocalIPAddrGet();
-      send_debug_message( "Hello world!" , DEBUG_MESSAGE_DEFAULT );
+      //send_debug_message( "Hello world!" , DEBUG_MESSAGE_DEFAULT );
       //wsMakeFrame();
-
-        vTaskDelay(3000 / portTICK_RATE_MS);
+	if (data_ok == 0) {
+	    //fprintf(stderr, "fread(): errno=%d\n", errno);
+	} else {
+	    data_ok = 0;
+	    //rpc
+	    eStatus = rpc_handle_command(g_input, strlen(g_input), g_output, MY_BUF_SIZE);
+		
+		//text reply?
+	    if(strlen(g_output) > 0) {
+		UARTprintf(">> %s\n", g_output);
+	    } else {
+		UARTprintf(">> no reply\n");
+	    }
+	    UARTprintf("%s\n", workstatus_to_string(eStatus));
+	}
+	vTaskDelay(3000 / portTICK_RATE_MS);
     }
 
 }

@@ -40,6 +40,7 @@
 #ifndef __LWIPOPTS_H__
 #define __LWIPOPTS_H__
 
+#include <stdio.h>
 #include "FreeRTOS.h"
 
 #define malloc pvPortMalloc
@@ -87,6 +88,7 @@
 #define SMEMCPY(dst,src,len)            memcpy(dst,src,len)
 
 
+#define LWIP_TIMEVAL_PRIVATE		0
 // Websocket options
 //#define LWIP_WEBSOCKDPING		1
 

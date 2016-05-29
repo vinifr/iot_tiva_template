@@ -62,7 +62,7 @@ LEDTask(void *pvParameters) {
             #ifdef DEVKIT
                 ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_5, GPIO_PIN_5);
             #else
-                ROM_GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_1, GPIO_PIN_1);
+                ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_1, GPIO_PIN_1);
             #endif
 
             // Wait for the required amount of time.
@@ -72,7 +72,7 @@ LEDTask(void *pvParameters) {
             #ifdef DEVKIT
                 ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_5, 0);
             #else
-                ROM_GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_1, 0);
+                ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_1, 0);
             #endif
 
             // Wait for the required amount of time.
@@ -85,7 +85,7 @@ LEDTask(void *pvParameters) {
             #ifdef DEVKIT
                 ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_5, GPIO_PIN_5);
             #else
-                ROM_GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_1, GPIO_PIN_1);
+                ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_1, GPIO_PIN_1);
             #endif
 
             // Wait for the required amount of time.
@@ -95,7 +95,7 @@ LEDTask(void *pvParameters) {
             #ifdef DEVKIT
                 ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_5, 0);
             #else
-                ROM_GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_1, 0);
+                ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_1, 0);
             #endif
 
             // Wait for the required amount of time.
@@ -108,7 +108,7 @@ LEDTask(void *pvParameters) {
             #ifdef DEVKIT
                 ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_5, GPIO_PIN_5);
             #else
-                ROM_GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_1, GPIO_PIN_1);
+                ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_1, GPIO_PIN_1);
             #endif
 
             // Wait for the required amount of time.
@@ -118,7 +118,7 @@ LEDTask(void *pvParameters) {
             #ifdef DEVKIT
                 ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_5, 0);
             #else
-                ROM_GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_1, 0);
+                ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_1, 0);
             #endif
 
             // Wait for the required amount of time.

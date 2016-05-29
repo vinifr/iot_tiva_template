@@ -90,9 +90,9 @@ pin_init(void) {
     ROM_GPIOPinTypeGPIOOutput(GPIO_PORTN_BASE, GPIO_PIN_5);
     ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_5, 0);
 #else
-    // PA0-1 is used for the user LED
-    ROM_GPIOPinTypeGPIOOutput(GPIO_PORTA_BASE, GPIO_PIN_1 | GPIO_PIN_0);
-    ROM_GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_1 | GPIO_PIN_0,  GPIO_PIN_0);
+    // PN0-1 is used for the user LED
+    ROM_GPIOPinTypeGPIOOutput(GPIO_PORTN_BASE, GPIO_PIN_1 | GPIO_PIN_0);
+    ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_1 | GPIO_PIN_0,  GPIO_PIN_0);
     // PH2-3 is used for the user LED
     ROM_GPIOPinTypeGPIOOutput(GPIO_PORTH_BASE, GPIO_PIN_3 | GPIO_PIN_2);
     ROM_GPIOPinWrite(GPIO_PORTH_BASE, GPIO_PIN_3 | GPIO_PIN_2, GPIO_PIN_3 | GPIO_PIN_2);
@@ -184,4 +184,9 @@ main(void) {
     // In case the scheduler returns for some reason, loop forever.
     while (1) {
     }
+}
+
+void assert(void *msg)
+{
+    UARTprintf("ASSERT FAIL at line %d of %s: %s\n", __LINE__, __FILE__, msg);
 }

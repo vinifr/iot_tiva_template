@@ -47,6 +47,8 @@ TIVAWARE_PATH           = iot_mcu_lib/TivaWare_C_Series-2.1.0.12573
 FreeRTOS_PATH           = iot_mcu_lib/FreeRTOSV8.2.0
 lwIP_PATH               = iot_mcu_lib/lwip-1.4.1
 jsmn_PATH               = iot_mcu_lib/jsmn
+jsmn_rpc_PATH		= iot_mcu_lib/jsmn-rpc
+MCU_LIB                 = iot_mcu_lib
 
 #compiler setup
 COMPILER    = gcc
@@ -94,8 +96,10 @@ CFLAGS += -I ${ROOT}/${lwIP_PATH}/src/include/netif
 #include lwIP apps
 CFLAGS += -I ${ROOT}/${lwIP_PATH}/apps
 CFLAGS += -I ${ROOT}/${lwIP_PATH}/cwebsock
-#include jsmn
+#include jsmn and jsmn-rpc
 CFLAGS += -I ${ROOT}/${jsmn_PATH}
+CFLAGS += -I ${ROOT}/${jsmn_rpc_PATH}
+CFLAGS += -I ${ROOT}/${MCU_LIB}
 
 # Print library
 SRC += ${ROOT}/${TIVAWARE_PATH}/driverlib/uartstdio.c
@@ -128,8 +132,9 @@ SRC += $(wildcard ${ROOT}/${lwIP_PATH}/apps/httpserver_raw/fs.c)
 SRC += $(wildcard ${ROOT}/${lwIP_PATH}/apps/httpserver_raw/LDA_debug.c)
 SRC += $(wildcard ${ROOT}/${lwIP_PATH}/apps/httpserver_raw/websockd.c)
 
-#include jsmn
+#include jsmn and jsmn-rpc
 SRC += $(wildcard ${ROOT}/${jsmn_PATH}/jsmn.c)
+SRC += $(wildcard ${ROOT}/${jsmn_rpc_PATH}/rpc.c)
 
 LIB_GCC_PATH    = ${shell ${CC} ${CFLAGS} -print-libgcc-file-name}
 LIBC_PATH       = ${shell ${CC} ${CFLAGS} -print-file-name=libc.a}
