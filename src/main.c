@@ -18,6 +18,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <sys/types.h>
+
 #include "inc/hw_gpio.h"
 #include "inc/hw_memmap.h"
 #include "inc/hw_nvic.h"
@@ -171,10 +173,10 @@ main(void) {
     }
 
     // Create the hello world task.
-    /*if (hello_world_init() != 0) {
+    if (hello_world_init() != 0) {
         while (1) {
         }
-    }*/
+    }
     
     UARTprintf("FreeRTOS + Lwip\n");
 
@@ -190,3 +192,49 @@ void assert(void *msg)
 {
     UARTprintf("ASSERT FAIL at line %d of %s: %s\n", __LINE__, __FILE__, msg);
 }
+
+
+//#ifdef PROJ_IMPLEMMENT_SYSCALLS
+
+extern uint32_t _etext;
+extern uint32_t _data;
+extern uint32_t _edata;
+extern uint32_t _bss;
+extern uint32_t _ebss;
+extern uint32_t __heap_end__;
+extern uint32_t _end;
+
+/*==================================================================================================
+  Function    : _sbrk
+
+  Description : Increase program data space. As malloc and related functions depend on this, it is
+                useful to have a working implementation. The following suffices for a standalone
+                system; it exploits the symbol _end automatically defined by the GNU linker.
+
+  Parameters  : incr  [IN]  The size in bytes of a new block of heap memory.
+
+  Returns     : A pointer to a new block of available heap memory.
+==================================================================================================*/
+
+caddr_t _sbrk(int incr)
+{
+  static unsigned char  * heap = NULL;
+  static unsigned char  * new_heap;
+  unsigned char         * prev_heap_end;
+
+  if (heap == NULL) {
+    heap = (unsigned char *) &_end;
+  }
+
+  prev_heap_end = heap;
+  new_heap = heap + incr;
+
+  if ((new_heap > (unsigned char *) &__heap_end__) || (new_heap < (unsigned char *) &_end)) {
+    return NULL;
+  }
+
+  heap += incr;
+  return (caddr_t) prev_heap_end;
+}
+
+//#endif /* PROJ_IMPLEMMENT_SYSCALLS */

@@ -34,6 +34,7 @@
 #include "semphr.h"
 #include "httpserver_raw/LDA_debug.h"
 #include "driverlib/uartstdio.h"
+#include "httpserver_raw/websockd.h"
 
 
 #define STACKSIZE_HELLO_WORLD_TASK       1024
@@ -90,8 +91,7 @@ workstatus_t echo(const char* const pcJSONString, const jsmntok_t* const ps_argt
 
     //write retval
     if (pcResponse) {
-        snprintf(pcResponse, iRespMaxLen, "\"%.*s\"", psTokEchoValue->end - psTokEchoValue->start,
-                                            &pcJSONString[psTokEchoValue->start]);
+        snprintf(pcResponse, iRespMaxLen, "\"%.*s\"", psTokEchoValue->end - psTokEchoValue->start, &pcJSONString[psTokEchoValue->start]);
     }
 
     //return status
@@ -99,9 +99,10 @@ workstatus_t echo(const char* const pcJSONString, const jsmntok_t* const ps_argt
 }
 
 static void
-hello_world_task(void *pvParameters) {
-
-    //uint32_t ip_addr;
+hello_world_task(void *pvParameters) 
+{
+    //uint8_t sendstr[23] = "Testing Websocket API";
+    //struct websock_state *hs = websock_state_alloc();
     data_ok = 0;
     workstatus_t eStatus = rpc_install_methods(test_methods, sizeof(test_methods)/sizeof(test_methods[0]));
     
@@ -112,14 +113,12 @@ hello_world_task(void *pvParameters) {
     while (1) {
       //ip_addr = lwIPLocalIPAddrGet();
       //send_debug_message( "Hello world!" , DEBUG_MESSAGE_DEFAULT );
-      //wsMakeFrame();
 	if (data_ok == 0) {
 	    //fprintf(stderr, "fread(): errno=%d\n", errno);
 	} else {
 	    data_ok = 0;
 	    //rpc
 	    eStatus = rpc_handle_command(g_input, strlen(g_input), g_output, MY_BUF_SIZE);
-		
 		//text reply?
 	    if(strlen(g_output) > 0) {
 		UARTprintf(">> %s\n", g_output);
