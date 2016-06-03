@@ -20,6 +20,8 @@
  */
 
 #include <stdint.h>
+#include "snprintf.h"
+
 #include "main.h"
 #include "inc/hw_memmap.h"
 #include "inc/hw_types.h"
@@ -39,14 +41,14 @@
 
 #define STACKSIZE_HELLO_WORLD_TASK       1024
 
-#include <stdio.h>  //printf
+//#include <stdio.h>  //printf
 #include <string.h> //strlen
 //#include <assert.h> //asert
 #include <errno.h>  //errno
 
 #include "rpc.h"
 
-#define MY_BUF_SIZE 160
+#define MY_BUF_SIZE 250
 char g_input[MY_BUF_SIZE];
 char g_output[MY_BUF_SIZE];
 
@@ -110,13 +112,14 @@ hello_world_task(void *pvParameters)
 	assert(0);
     }
 
-    while (1) {
-      //ip_addr = lwIPLocalIPAddrGet();
-      //send_debug_message( "Hello world!" , DEBUG_MESSAGE_DEFAULT );
+    while (1) {      
 	if (data_ok == 0) {
 	    //fprintf(stderr, "fread(): errno=%d\n", errno);
 	} else {
 	    data_ok = 0;
+	    UARTprintf("RPC recv: ");
+	    UARTprintf(g_input);
+	    UARTprintf("\n\n");
 	    //rpc
 	    eStatus = rpc_handle_command(g_input, strlen(g_input), g_output, MY_BUF_SIZE);
 		//text reply?

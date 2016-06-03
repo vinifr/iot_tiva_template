@@ -194,13 +194,8 @@ void assert(void *msg)
 }
 
 
-//#ifdef PROJ_IMPLEMMENT_SYSCALLS
+#ifdef PROJ_IMPLEMMENT_SYSCALLS
 
-extern uint32_t _etext;
-extern uint32_t _data;
-extern uint32_t _edata;
-extern uint32_t _bss;
-extern uint32_t _ebss;
 extern uint32_t __heap_end__;
 extern uint32_t _end;
 
@@ -237,4 +232,4 @@ caddr_t _sbrk(int incr)
   return (caddr_t) prev_heap_end;
 }
 
-//#endif /* PROJ_IMPLEMMENT_SYSCALLS */
+#endif /* PROJ_IMPLEMMENT_SYSCALLS */

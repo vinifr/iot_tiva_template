@@ -61,8 +61,9 @@ CPU         = cortex-m4
 FPU         = fpv4-sp-d16
 FABI        = softfp
 
-#LINKER_FILE     = tm4c129.ld
-LINKER_FILE     = tm4c129_02.ld
+LINKER_FILE     = tm4c129.ld
+#LINKER_FILE     = tm4c129_02.ld
+#LINKER_FILE     = tm4c129_03.ld
 STARTUP_FILE    = main
 
 CC = ${TOOLCHAIN}-gcc
