@@ -34,7 +34,7 @@
 #include "httpserver_raw/websockd.h"
 
 
-#define STACKSIZE_HELLO_WORLD_TASK       1024
+#define STACKSIZE_RPC_TEST       1024
 
 //#include <stdio.h>  //printf
 #include <string.h> //strlen
@@ -60,6 +60,27 @@ int websocket_get_data(char *data, int dataLength)
     }
     return ret;
 }
+
+/*
+ * Json-rpc 2.0 Examples
+ * A simple request and response:
+ * --> {"jsonrpc": "2.0", "method": "echo", "params": ["Hello JSON-RPC"], "id": 1}
+ * <-- {"result": "Hello JSON-RPC", "error": null, "id": 1}
+ * 
+ * Procedure call with positional parameters:
+ * --> {"jsonrpc": "2.0", "method": "subtract", "params": [42, 23], "id": 1}
+ * <-- {"jsonrpc": "2.0", "result": 19, "id": 1}
+ * 
+ * --> {"jsonrpc": "2.0", "method": "subtract", "params": [23, 42], "id": 2}
+ * <-- {"jsonrpc": "2.0", "result": -19, "id": 2}
+ * 
+ * Procedure call with named parameters:
+ * --> {"jsonrpc": "2.0", "method": "subtract", "params": {"subtrahend": 23, "minuend": 42}, "id": 3}
+ * <-- {"jsonrpc": "2.0", "result": 19, "id": 3}
+ * 
+ * Notification:
+ * --> {"jsonrpc": "2.0", "method": "update", "params": [1,2,3,4,5]}
+ */
 
 //rpc prototype
 static
@@ -88,13 +109,14 @@ workstatus_t echo(const char* const pcJSONString, const jsmntok_t* const ps_argt
 
     //write retval
     if (pcResponse) {
-        snprintf(pcResponse, iRespMaxLen, "\"%.*s\"", psTokEchoValue->end - psTokEchoValue->start, &pcJSONString[psTokEchoValue->start]);
+        snprintf(pcResponse, iRespMaxLen, "\"%.*s\"", 
+		 psTokEchoValue->end - psTokEchoValue->start, &pcJSONString[psTokEchoValue->start]);
     }
 
     //return status
     return WORKSTATUS_NO_ERROR;
 }
-// {"jsonrpc": "2.0", "method": "echo", "params": ["Hello JSON-RPC"], "id": 1}
+
 static void
 json_rpc_test(void *pvParameters) 
 {
@@ -138,7 +160,8 @@ json_rpc_test(void *pvParameters)
 uint32_t
 json_test_init(void) {
 
-    if (xTaskCreate(json_rpc_test, (const portCHAR * const)"JSON_TEST", STACKSIZE_HELLO_WORLD_TASK, NULL, tskIDLE_PRIORITY + PRIORITY_HELLO_WORLD_TASK, NULL) != pdTRUE) {
+    if (xTaskCreate(json_rpc_test, (const portCHAR * const)"JSON_RPC", 
+	STACKSIZE_RPC_TEST, NULL, tskIDLE_PRIORITY + PRIORITY_HELLO_WORLD_TASK, NULL) != pdTRUE) {
         return(1);
     }
 
