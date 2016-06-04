@@ -188,11 +188,12 @@ main(void) {
     }
 }
 
+/*
 void assert(void *msg)
 {
     UARTprintf("ASSERT FAIL at line %d of %s: %s\n", __LINE__, __FILE__, msg);
 }
-
+*/
 
 #ifdef PROJ_IMPLEMMENT_SYSCALLS
 

@@ -23,10 +23,6 @@
 #include "snprintf.h"
 
 #include "main.h"
-#include "inc/hw_memmap.h"
-#include "inc/hw_types.h"
-#include "driverlib/gpio.h"
-#include "driverlib/rom.h"
 #include "config/lwiplib.h"
 #include "json_rpc_test.h"
 #include "priorities.h"
@@ -34,7 +30,6 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
-#include "httpserver_raw/LDA_debug.h"
 #include "driverlib/uartstdio.h"
 #include "httpserver_raw/websockd.h"
 
