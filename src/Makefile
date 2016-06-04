@@ -77,7 +77,7 @@ CFLAGS += -MD -std=gnu99 -Wall
 CFLAGS += -Wno-char-subscripts -Wno-address -Wno-switch
 CFLAGS += -DPART_$(PART) -c -DTARGET_IS_TM4C129_RA0
 CFLAGS += -c -g
-CFLAGS += -DDEBUG
+CFLAGS += -DDEBUG -DJSMN_FIRST_CHILD_NEXT_SIBLING
 CFLAGS += -DRTOS_FREERTOS
 
 

@@ -22,6 +22,6 @@
 #ifndef __HELLO_WORLD_TASK_H__
 #define __HELLO_WORLD_TASK_H__
 
-extern uint32_t hello_world_init(void);
+extern uint32_t json_test_init(void);
 
 #endif

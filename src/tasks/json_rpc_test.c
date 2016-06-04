@@ -28,7 +28,7 @@
 #include "driverlib/gpio.h"
 #include "driverlib/rom.h"
 #include "config/lwiplib.h"
-#include "hello_world_task.h"
+#include "json_rpc_test.h"
 #include "priorities.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -99,20 +99,21 @@ workstatus_t echo(const char* const pcJSONString, const jsmntok_t* const ps_argt
     //return status
     return WORKSTATUS_NO_ERROR;
 }
-
+// {"jsonrpc": "2.0", "method": "echo", "params": ["Hello JSON-RPC"], "id": 1}
 static void
-hello_world_task(void *pvParameters) 
+json_rpc_test(void *pvParameters) 
 {
+	int32_t len;
     //uint8_t sendstr[23] = "Testing Websocket API";
-    //struct websock_state *hs = websock_state_alloc();
+    struct websock_state *hs = websock_state_alloc();
     data_ok = 0;
     workstatus_t eStatus = rpc_install_methods(test_methods, sizeof(test_methods)/sizeof(test_methods[0]));
-    
+
     if(eStatus != WORKSTATUS_NO_ERROR) {
 	assert(0);
     }
 
-    while (1) {      
+    while (1) {
 	if (data_ok == 0) {
 	    //fprintf(stderr, "fread(): errno=%d\n", errno);
 	} else {
@@ -123,22 +124,26 @@ hello_world_task(void *pvParameters)
 	    //rpc
 	    eStatus = rpc_handle_command(g_input, strlen(g_input), g_output, MY_BUF_SIZE);
 		//text reply?
-	    if(strlen(g_output) > 0) {
-		UARTprintf(">> %s\n", g_output);
+	    if( (len = strlen(g_output)) > 0) {
+			hs->allocated = 0;
+			hs->left = len;
+			UARTprintf(">> len:%u %s\n", len, g_output);
+			libwebsock_send_text(hs, (uint8_t *)g_output);
+			memset(g_output, 0, sizeof(g_output));
 	    } else {
 		UARTprintf(">> no reply\n");
 	    }
 	    UARTprintf("%s\n", workstatus_to_string(eStatus));
 	}
-	vTaskDelay(3000 / portTICK_RATE_MS);
+	vTaskDelay(10 / portTICK_RATE_MS);
     }
 
 }
 
 uint32_t
-hello_world_init(void) {
+json_test_init(void) {
 
-    if (xTaskCreate(hello_world_task, (const portCHAR * const)"HELLO_WORLD", STACKSIZE_HELLO_WORLD_TASK, NULL, tskIDLE_PRIORITY + PRIORITY_HELLO_WORLD_TASK, NULL) != pdTRUE) {
+    if (xTaskCreate(json_rpc_test, (const portCHAR * const)"JSON_TEST", STACKSIZE_HELLO_WORLD_TASK, NULL, tskIDLE_PRIORITY + PRIORITY_HELLO_WORLD_TASK, NULL) != pdTRUE) {
         return(1);
     }
 

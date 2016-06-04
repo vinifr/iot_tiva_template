@@ -34,7 +34,7 @@
 #include "driverlib/uartstdio.h"
 #include "led_task.h"
 #include "lwip_task.h"
-#include "hello_world_task.h"
+#include "json_rpc_test.h"
 #include "httpserver_raw/LDA_debug.h"
 
 #include "FreeRTOS.h"
@@ -172,12 +172,12 @@ main(void) {
 
     }
 
-    // Create the hello world task.
-    if (hello_world_init() != 0) {
+    // Create the json_test_init task.
+    if (json_test_init() != 0) {
         while (1) {
         }
     }
-    
+
     UARTprintf("FreeRTOS + Lwip\n");
 
     // Start the scheduler. This should not return.
