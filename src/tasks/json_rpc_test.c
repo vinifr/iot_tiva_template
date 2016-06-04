@@ -105,7 +105,7 @@ json_rpc_test(void *pvParameters)
 {
 	int32_t len;
     //uint8_t sendstr[23] = "Testing Websocket API";
-    struct websock_state *hs = websock_state_alloc();
+    //struct websock_state *hs = websock_state_alloc();
     data_ok = 0;
     workstatus_t eStatus = rpc_install_methods(test_methods, sizeof(test_methods)/sizeof(test_methods[0]));
 
@@ -125,11 +125,11 @@ json_rpc_test(void *pvParameters)
 	    eStatus = rpc_handle_command(g_input, strlen(g_input), g_output, MY_BUF_SIZE);
 		//text reply?
 	    if( (len = strlen(g_output)) > 0) {
-			hs->allocated = 0;
-			hs->left = len;
-			UARTprintf(">> len:%u %s\n", len, g_output);
-			libwebsock_send_text(hs, (uint8_t *)g_output);
-			memset(g_output, 0, sizeof(g_output));
+		//hs->allocated = 0;
+		//hs->size = len;
+		UARTprintf(">> %s\n", g_output);
+		libwebsock_send_text((uint8_t *)g_output, len);
+		memset(g_output, 0, sizeof(g_output));
 	    } else {
 		UARTprintf(">> no reply\n");
 	    }
