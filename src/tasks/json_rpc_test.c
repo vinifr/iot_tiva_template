@@ -87,9 +87,14 @@ static
 workstatus_t echo(const char* const pcJSONString, const jsmntok_t* const ps_argtok,
           const jsmntok_t* const ps_alltoks, char* pcResponse, int RespMaxLen);
 
+static
+workstatus_t subtract(const char* const pcJSONString, const jsmntok_t* const ps_argtok,
+          const jsmntok_t* const ps_alltoks, char* pcResponse, int RespMaxLen);
+
 //rpc sig
 static methodtable_entry_t test_methods[] = {
     {"echo", "(S)P", echo},
+    {"subtract", "(PP)P", subtract},
 };
 
 //rpc body
@@ -100,6 +105,7 @@ workstatus_t echo(const char* const pcJSONString, const jsmntok_t* const ps_argt
     //estimate
     const jsmntok_t* psTokEchoValue =
                 &ps_alltoks[(&ps_alltoks[ps_argtok->first_child])->first_child];
+
     if (pcResponse && iRespMaxLen < (2 + psTokEchoValue->end - psTokEchoValue->start)) {
         return WORKSTATUS_RPC_ERROR_OUTOFRESBUF;
     }
@@ -116,6 +122,29 @@ workstatus_t echo(const char* const pcJSONString, const jsmntok_t* const ps_argt
     //return status
     return WORKSTATUS_NO_ERROR;
 }
+
+static
+workstatus_t subtract(const char* const pcJSONString, const jsmntok_t* const ps_argtok,
+          const jsmntok_t* const ps_alltoks, char* pcResponse, int iRespMaxLen)
+{
+    int result = 7;
+    //estimate
+    const jsmntok_t* psToksub =
+                &ps_alltoks[(&ps_alltoks[ps_argtok->first_child])->first_child];
+
+    if (pcResponse && iRespMaxLen < (2 + psToksub->end - psToksub->start)) {
+        return WORKSTATUS_RPC_ERROR_OUTOFRESBUF;
+    }
+
+    //write retval
+    if (pcResponse) {
+        snprintf(pcResponse, iRespMaxLen, "\"%d\"", result);
+    }
+
+    //return status
+    return WORKSTATUS_NO_ERROR;
+}
+
 
 static void
 json_rpc_test(void *pvParameters) 
@@ -146,11 +175,11 @@ json_rpc_test(void *pvParameters)
 		//hs->size = len;
 		UARTprintf(">> %s\n", g_output);
 		libwebsock_send_text((uint8_t *)g_output, len);
-		memset(g_output, 0, sizeof(g_output));
 	    } else {
 		UARTprintf(">> no reply\n");
 	    }
 	    UARTprintf("%s\n", workstatus_to_string(eStatus));
+	    memset(g_output, 0, sizeof(g_output));
 	}
 	vTaskDelay(10 / portTICK_RATE_MS);
     }
