@@ -34,7 +34,7 @@
 #include "driverlib/uartstdio.h"
 #include "led_task.h"
 #include "lwip_task.h"
-#include "json_rpc_test.h"
+#include "json_adc.h"
 #include "httpserver_raw/LDA_debug.h"
 
 #include "FreeRTOS.h"

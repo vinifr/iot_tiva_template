@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <canvas id="canvas" width=300 height=300></canvas>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+        <script type="text/javascript">
+            $(function() {
+                window.WebSocket = window.WebSocket || window.MozWebSocket;
+
+                var websocket = new WebSocket('ws://192.168.25.12');
+
+                websocket.onopen = function () {
+                    $('h1').css('color', 'green');
+                };
+
+                websocket.onerror = function () {
+                    $('h1').css('color', 'red');
+                };
+
+                websocket.onmessage = function (message) {
+                	
+                	if(!message.data) {
+                		return;
+                	}
+                    console.log(message.data);
+                    $('div').append($('<p>', { text: message.data }));
+                };
+                
+
+                $('button').click(function(e) {
+                    e.preventDefault();
+                    websocket.send($('textarea').val());
+                    $('input').val('');
+                });
+            });
+            
+            // Code for draw wave
+            var canvas = document.getElementById("canvas");
+	    var ctx = canvas.getContext("2d");
+
+	    // capture incoming socket data in an array
+	    var data = [];
+
+	    // TESTING: fill data with some test values
+	    for (var i = 0; i < 5000; i++) {
+		data.push(Math.sin(i / 10) * 70 + 100);
+	    }
+
+
+	    var x = 0;
+	    var panAtX = 250;
+	    var continueAnimation = true;
+	    animate();
+
+
+	    function animate() {
+
+		if (x > data.length - 1) {
+		    return;
+		}
+
+		if (continueAnimation) {
+		    requestAnimationFrame(animate);
+		}
+
+		if (x++ < panAtX) {
+
+		    ctx.fillRect(x, data[x], 1, 1);
+
+		} else {
+
+		    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+		    // plot data[] from x-PanAtX to x 
+
+		    for (var xx = 0; xx < panAtX; xx++) {
+			var y = data[x - panAtX + xx];
+			ctx.fillRect(xx, y, 1, 1)
+		    }
+		}
+	    }
+        </script>
+        </head>
+    <body>
+        <h1>WebSockets test</h1>
+        <form>
+            <textarea type="text" style="width:400px; height:150px" >{"jsonrpc": "2.0", "method": "echo", "params": ["Hello JSON-RPC"], "id": 1}
+            </textarea>
+            <button>Send</button>
+        </form>
+        <div></div>
+    </body>
+</html>

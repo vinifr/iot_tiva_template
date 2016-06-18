@@ -1,0 +1,42 @@
+<button id="stop">Stop</button>
+<br>
+
+<canvas id="canvas" width="300" height="300" style="background-color: black;"></canvas>
+<script type="text/javascript">
+            var canvas = document.getElementById("canvas");
+            var ctx = canvas.getContext("2d");
+            ctx.fillStyle = "#dbbd7a";
+            ctx.fill();
+            var fps = 20;
+            var n = 1;
+            var data = new Array(500);
+            
+            for (var i = 0; i < 500; i++) {
+		//data.push(Math.sin(i / 10) * 70 + 100);
+		data[i] = (Math.sin(i / 10) * 70 + 100);
+	    }
+	    //var fat = canvas.height / 100;
+	    //for (var i = 0; i < data.length; i++) {
+		//data[i] *= fat;
+            //}
+
+            drawWave();
+            function drawWave() {
+                setTimeout(function() {
+                    requestAnimationFrame(drawWave);
+                    ctx.lineWidth = "2";
+                    ctx.strokeStyle = 'red';
+                    // Drawing code goes here
+                    n += 1;
+                    if (n >= data.length*1) {
+                        n = 1;
+                    }
+                    //data[n] += (canvas.height - 200);                    
+                    ctx.beginPath();
+                    ctx.moveTo(n - 1, data[n - 1]);
+                    ctx.lineTo(n, data[n]);
+                    ctx.stroke();
+                    ctx.clearRect(n+1, 0, 1, canvas.height);
+                }, 500 / fps);
+            }
+</script>

@@ -24,7 +24,7 @@
 
 #include "main.h"
 #include "config/lwiplib.h"
-#include "json_rpc_test.h"
+#include "json_adc.h"
 #include "priorities.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -80,6 +80,9 @@ int websocket_get_data(char *data, int dataLength)
  * 
  * Notification:
  * --> {"jsonrpc": "2.0", "method": "update", "params": [1,2,3,4,5]}
+ * 
+ * ADC Test:
+ * {"jsonrpc": "2.0", "method": "sendADC", "params": [1], "id": 1}
  */
 
 //rpc prototype
@@ -88,13 +91,13 @@ workstatus_t echo(const char* const pcJSONString, const jsmntok_t* const ps_argt
           const jsmntok_t* const ps_alltoks, char* pcResponse, int RespMaxLen);
 
 static
-workstatus_t subtract(const char* const pcJSONString, const jsmntok_t* const ps_argtok,
+workstatus_t sendADC(const char* const pcJSONString, const jsmntok_t* const ps_argtok,
           const jsmntok_t* const ps_alltoks, char* pcResponse, int RespMaxLen);
 
 //rpc sig
 static methodtable_entry_t test_methods[] = {
     {"echo", "(S)P", echo},
-    {"subtract", "(PP)P", subtract},
+    {"sendADC", "(P)P", sendADC},
 };
 
 //rpc body
@@ -124,10 +127,12 @@ workstatus_t echo(const char* const pcJSONString, const jsmntok_t* const ps_argt
 }
 
 static
-workstatus_t subtract(const char* const pcJSONString, const jsmntok_t* const ps_argtok,
+workstatus_t sendADC(const char* const pcJSONString, const jsmntok_t* const ps_argtok,
           const jsmntok_t* const ps_alltoks, char* pcResponse, int iRespMaxLen)
 {
-    int result = 7;
+    int param;
+    float result = 3.32;
+    char *str1;
     //estimate
     const jsmntok_t* psToksub =
                 &ps_alltoks[(&ps_alltoks[ps_argtok->first_child])->first_child];
@@ -136,9 +141,17 @@ workstatus_t subtract(const char* const pcJSONString, const jsmntok_t* const ps_
         return WORKSTATUS_RPC_ERROR_OUTOFRESBUF;
     }
 
-    //write retval
-    if (pcResponse) {
-        snprintf(pcResponse, iRespMaxLen, "\"%d\"", result);
+    // Pega o valor do parametro recebido
+    str1 = strstr(pcJSONString+ps_argtok->start, "[");
+    param = *(str1+1) - '0';
+
+    // 1 - Sensor de batimentos cardiacos
+    if (pcResponse && (param == 1)) {
+        snprintf(pcResponse, iRespMaxLen, "\"%f\"", result);
+    }
+    // 2 - Sensor de temperatura
+    if (pcResponse && (param == 2)) {
+        snprintf(pcResponse, iRespMaxLen, "\"%f\"", result-1);
     }
 
     //return status
@@ -147,7 +160,7 @@ workstatus_t subtract(const char* const pcJSONString, const jsmntok_t* const ps_
 
 
 static void
-json_rpc_test(void *pvParameters) 
+json_adc(void *pvParameters) 
 {
 	int32_t len;
     //uint8_t sendstr[23] = "Testing Websocket API";
@@ -189,7 +202,7 @@ json_rpc_test(void *pvParameters)
 uint32_t
 json_test_init(void) {
 
-    if (xTaskCreate(json_rpc_test, (const portCHAR * const)"JSON_RPC", 
+    if (xTaskCreate(json_adc, (const portCHAR * const)"JSON_RPC", 
 	STACKSIZE_RPC_TEST, NULL, tskIDLE_PRIORITY + PRIORITY_HELLO_WORLD_TASK, NULL) != pdTRUE) {
         return(1);
     }
