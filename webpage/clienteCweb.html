@@ -30,9 +30,11 @@
     
     <script type="text/javascript">
 	var recv = new Array(512);
-	var id;
+	var x;
+	var ws;
+	var isOpen = false;
         $(document).ready(function() {
-            var ws;
+            //var ws;
             $('#connectForm').on('submit', function() {
                 if ("WebSocket" in window) {
                     ws = new WebSocket($('#wsServer').val());
@@ -43,13 +45,15 @@
                         $('#disconnect').removeAttr('disabled');
                         $('#message').removeAttr('disabled').focus();
                         $('#send').removeAttr('disabled');
+                        isOpen = true;
                     };
                     ws.onerror = function() {
                         $('#log').append('<li><span class="badge badge-important">websocket error</span></li>');
                     };
                     ws.onmessage = function(event) {
-                        $('#log').append('<li>recieved: <span class="badge">' + event.data + '</span></li>');
-                        recv[id] = event.data;
+                        //$('#log').append('<li>recieved: <span class="badge">' + event.data + '</span></li>');
+                        console.log('<li>recieved: <span class="badge">' + event.data + '</span></li>');
+                        recv[x++] = event.data;
                     };
                     ws.onclose = function() {
                         $('#log').append('<li><span class="badge badge-important">websocket closed</span></li>');
@@ -72,6 +76,7 @@
             });
             $('#disconnect').on('click', function() {
                 ws.close();
+                isOpen = false;
                 return false;
             });
         });
@@ -84,6 +89,7 @@
 	// Full Height and Width
 	var canvasHeight = $(document).height() / 2;
 	var canvasWidth = $(document).width() / 2;
+	var j = 0;
 
 	// Create Canvas Element
 	var canvas = document.createElement('canvas');
@@ -133,14 +139,17 @@
 	    context.restore();
 	    
 	    renderBackgroundScreen(0.02);
+	    if (isOpen == true)
+		ws.send('{"jsonrpc": "2.0", "method": "sendADC", "params": [1], "id": 1}');
 
 	    context.beginPath();
 	    context.moveTo(strokePositionX, strokePositionY);
 	    strokePositionX = strokePositionX + 1;
 
-	    strokePositionY = Math.sin(strokePositionX / 10) * 70 + recv[id++];
-	    if (id >= 512)
-		id = 0;
+	    strokePositionY = Math.sin(strokePositionX / 10) * 70 + 100;
+	    //strokePositionY = recv[j++] * 100;
+	    if (j >= 512)
+		j = 0;
 
 	    if ((strokePositionX >= canvasWidth * 20 / 100 && strokePositionX < canvasWidth * 24 / 100)
 	    || (strokePositionX >= canvasWidth * 70 / 100 && strokePositionX < canvasWidth * 74 / 100)) {
@@ -183,7 +192,7 @@
 	}
 
 	renderBackgroundScreen(1);
-	setInterval(drawHeartMonitorStroke, 1);
+	setInterval(drawHeartMonitorStroke, 25);
     </script>
 
 </body>

@@ -51,6 +51,7 @@ extern void vPortSVCHandler(void);
 extern void xPortSysTickHandler(void);
 extern void timer1a_interrupt_handler(void);
 extern void pwm0_interrupt_handler(void);
+extern void ADCISRHandler(void);
 
 //*****************************************************************************
 //
@@ -107,7 +108,7 @@ void (* const g_pfnVectors[])(void) =
     IntDefaultHandler,                      // PWM Generator 2
     IntDefaultHandler,                      // Quadrature Encoder 0
     IntDefaultHandler,                      // ADC Sequence 0
-    IntDefaultHandler,                      // ADC Sequence 1
+    ADCISRHandler,                      // ADC Sequence 1
     IntDefaultHandler,                      // ADC Sequence 2
     IntDefaultHandler,                      // ADC Sequence 3
     IntDefaultHandler,                      // Watchdog timer

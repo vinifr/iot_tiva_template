@@ -1,5 +1,4 @@
 /*
- * Copyright (c) 2015 Lindem Data Acquisition AS. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use
  * these files except in compliance with the License. You may obtain a copy of the
@@ -12,10 +11,6 @@
  * CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  *
- * Author:       Joakim Myrland
- * website:      www.LDA.as
- * email:        joakim.myrland@LDA.as
- * project:      https://github.com/Lindem-Data-Acquisition-AS/iot_tiva_template/
  *
  */
 
@@ -30,8 +25,21 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
-#include "driverlib/uartstdio.h"
 #include "httpserver_raw/websockd.h"
+
+#include "inc/hw_ints.h"
+#include "inc/hw_memmap.h"
+#include "inc/hw_types.h"
+#include "driverlib/gpio.h"
+#include "driverlib/interrupt.h"
+#include "driverlib/pin_map.h"
+#include "driverlib/rom.h"
+#include "driverlib/rom_map.h"
+#include "driverlib/sysctl.h"
+#include "driverlib/timer.h"
+#include "driverlib/uart.h"
+#include "driverlib/adc.h"
+#include "driverlib/uartstdio.h"
 
 
 #define STACKSIZE_RPC_TEST       1024
@@ -43,12 +51,17 @@
 
 #include "rpc.h"
 
-#define MY_BUF_SIZE 250
+#define MY_BUF_SIZE 128
+
 char g_input[MY_BUF_SIZE];
 char g_output[MY_BUF_SIZE];
 
+uint32_t ui32ADC0Value[4];
+char buff[32];
+char f_adc;
 int data_ok;
 
+void ADCConfig(void);
 
 int websocket_get_data(char *data, int dataLength)
 {
@@ -151,6 +164,8 @@ workstatus_t sendADC(const char* const pcJSONString, const jsmntok_t* const ps_a
     }
     // 2 - Sensor de temperatura
     if (pcResponse && (param == 2)) {
+	ADCProcessorTrigger(ADC0_BASE, 1);
+	//while(!f_adc);
         snprintf(pcResponse, iRespMaxLen, "\"%f\"", result-1);
     }
 
@@ -158,28 +173,30 @@ workstatus_t sendADC(const char* const pcJSONString, const jsmntok_t* const ps_a
     return WORKSTATUS_NO_ERROR;
 }
 
-
+// {"jsonrpc": "2.0", "method": "sendADC", "params": [2], "id": 1}
 static void
 json_adc(void *pvParameters) 
 {
-	int32_t len;
-    //uint8_t sendstr[23] = "Testing Websocket API";
-    //struct websock_state *hs = websock_state_alloc();
+    int32_t len;
+    float value;
+    
     data_ok = 0;
     workstatus_t eStatus = rpc_install_methods(test_methods, sizeof(test_methods)/sizeof(test_methods[0]));
 
     if(eStatus != WORKSTATUS_NO_ERROR) {
 	assert(0);
     }
+    ADCConfig();
+    ADCProcessorTrigger(ADC0_BASE, 1);
 
     while (1) {
 	if (data_ok == 0) {
 	    //fprintf(stderr, "fread(): errno=%d\n", errno);
 	} else {
 	    data_ok = 0;
-	    UARTprintf("RPC recv: ");
-	    UARTprintf(g_input);
-	    UARTprintf("\n\n");
+	    //UARTprintf("RPC recv: ");
+	    //UARTprintf(g_input);
+	    //UARTprintf("\n\n");
 	    //rpc
 	    eStatus = rpc_handle_command(g_input, strlen(g_input), g_output, MY_BUF_SIZE);
 		//text reply?
@@ -193,6 +210,16 @@ json_adc(void *pvParameters)
 	    }
 	    UARTprintf("%s\n", workstatus_to_string(eStatus));
 	    memset(g_output, 0, sizeof(g_output));
+	}
+	
+	if (f_adc) {
+	    f_adc = 0;
+	    memset(buff, 0, sizeof(buff));
+	    value = ((float)ui32ADC0Value[1] * 3.3) / 4096;
+	    snprintf( buff, 32, "Tensao:%2f, Temp:%2f", value, value/0.01);
+	    UARTprintf("%s\n", buff);
+	    vTaskDelay(1000 / portTICK_RATE_MS);
+	    //ADCProcessorTrigger(ADC0_BASE, 1);
 	}
 	vTaskDelay(10 / portTICK_RATE_MS);
     }
@@ -209,4 +236,38 @@ json_test_init(void) {
 
     // Success.
     return(0);
+}
+
+void ADCISRHandler(void)
+{
+    while (!ADCIntStatus(ADC0_BASE, 1, false)){};
+
+    ADCIntClear(ADC0_BASE, 1);
+    ADCSequenceDataGet(ADC0_BASE, 1, ui32ADC0Value);
+
+    f_adc = 1;
+    //ui32TempAvg = ui32ADC0Value[3];
+    //ui32TempValueC = (1475 - ((2475 * ui32TempAvg)) / 4096) / 10;
+}
+
+void ADCConfig(void)
+{
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_ADC0);
+	SysCtlPeripheralReset(SYSCTL_PERIPH_ADC0);
+
+	ADCSequenceDisable(ADC0_BASE, 1);
+	ADCSequenceConfigure(ADC0_BASE, 1, ADC_TRIGGER_PROCESSOR, 0);
+
+	GPIOPinTypeADC(GPIO_PORTE_BASE, GPIO_PIN_2 | GPIO_PIN_3); // PE2(Temp) e PE3(Heart)
+
+	ADCSequenceStepConfigure(ADC0_BASE, 1, 0, ADC_CTL_CH0);
+	ADCSequenceStepConfigure(ADC0_BASE, 1, 1, ADC_CTL_CH1 | ADC_CTL_IE | ADC_CTL_END);
+	//ADCSequenceStepConfigure(ADC0_BASE, 1, 1, ADC_CTL_CH4);
+	//ADCSequenceStepConfigure(ADC0_BASE, 1, 2, ADC_CTL_CH2 | ADC_CTL_IE | ADC_CTL_END);
+	//ADCSequenceStepConfigure(ADC0_BASE, 1, 3, ADC_CTL_CH3 |	ADC_CTL_IE | ADC_CTL_END);
+
+	IntEnable(INT_ADC0SS1);
+	ADCIntEnable(ADC0_BASE, 1);
+	ADCSequenceEnable(ADC0_BASE, 1);
 }

@@ -47,7 +47,7 @@ uint32_t g_ui32SysClock;
 #ifdef DEBUG
 void
 __error__(char *pcFilename, uint32_t ui32Line) {
-    send_debug_assert(pcFilename, ui32Line);
+    //send_debug_assert(pcFilename, ui32Line);
 }
 #endif
 

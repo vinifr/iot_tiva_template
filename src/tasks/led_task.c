@@ -1,5 +1,4 @@
 /*
- * Copyright (c) 2015 Lindem Data Acquisition AS. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use
  * these files except in compliance with the License. You may obtain a copy of the
@@ -12,10 +11,6 @@
  * CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  *
- * Author:       Joakim Myrland
- * website:      www.LDA.as
- * email:        joakim.myrland@LDA.as
- * project:      https://github.com/Lindem-Data-Acquisition-AS/iot_tiva_template/
  *
  */
 

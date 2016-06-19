@@ -128,10 +128,10 @@ SRC += $(wildcard ${ROOT}/${lwIP_PATH}/src/netif/*.c)
 #SRC += $(wildcard ${ROOT}/${lwIP_PATH}/src/netif/ppp/*.c)
 SRC += $(wildcard ${ROOT}/${lwIP_PATH}/src/api/*.c)
 #include lwIP apps
-SRC += $(wildcard ${ROOT}/${lwIP_PATH}/apps/httpserver_raw/httpd.c)
-SRC += $(wildcard ${ROOT}/${lwIP_PATH}/apps/httpserver_raw/httpd_post.c)
+#SRC += $(wildcard ${ROOT}/${lwIP_PATH}/apps/httpserver_raw/httpd.c)
+#SRC += $(wildcard ${ROOT}/${lwIP_PATH}/apps/httpserver_raw/httpd_post.c)
 SRC += $(wildcard ${ROOT}/${lwIP_PATH}/apps/httpserver_raw/fs.c)
-SRC += $(wildcard ${ROOT}/${lwIP_PATH}/apps/httpserver_raw/LDA_debug.c)
+#SRC += $(wildcard ${ROOT}/${lwIP_PATH}/apps/httpserver_raw/LDA_debug.c)
 SRC += $(wildcard ${ROOT}/${lwIP_PATH}/apps/httpserver_raw/websockd.c)
 
 #include jsmn and jsmn-rpc
