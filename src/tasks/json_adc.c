@@ -14,6 +14,30 @@
  *
  */
 
+/*
+ * Json-rpc 2.0 Examples
+ * A simple request and response:
+ * --> {"jsonrpc": "2.0", "method": "echo", "params": ["Hello JSON-RPC"], "id": 1}
+ * <-- {"result": "Hello JSON-RPC", "error": null, "id": 1}
+ * 
+ * Procedure call with positional parameters:
+ * --> {"jsonrpc": "2.0", "method": "subtract", "params": [42, 23], "id": 1}
+ * <-- {"jsonrpc": "2.0", "result": 19, "id": 1}
+ * 
+ * --> {"jsonrpc": "2.0", "method": "subtract", "params": [23, 42], "id": 2}
+ * <-- {"jsonrpc": "2.0", "result": -19, "id": 2}
+ * 
+ * Procedure call with named parameters:
+ * --> {"jsonrpc": "2.0", "method": "subtract", "params": {"subtrahend": 23, "minuend": 42}, "id": 3}
+ * <-- {"jsonrpc": "2.0", "result": 19, "id": 3}
+ * 
+ * Notification:
+ * --> {"jsonrpc": "2.0", "method": "update", "params": [1,2,3,4,5]}
+ * 
+ * ADC Test:
+ * {"jsonrpc": "2.0", "method": "sendADC", "params": [1], "id": 1}
+ */
+
 #include <stdint.h>
 #include "snprintf.h"
 
@@ -58,10 +82,22 @@ char g_output[MY_BUF_SIZE];
 
 uint32_t ui32ADC0Value[4];
 char buff[32];
-char f_adc;
+char f_adc, adc_rdy;
 int data_ok;
+float value;
 
 void ADCConfig(void);
+
+void ADCISRHandler(void)
+{
+    while (!ADCIntStatus(ADC0_BASE, 1, false)){};
+
+    ADCIntClear(ADC0_BASE, 1);
+    ADCSequenceDataGet(ADC0_BASE, 1, ui32ADC0Value);
+
+    f_adc = 1;
+    adc_rdy = 1;
+}
 
 int websocket_get_data(char *data, int dataLength)
 {
@@ -73,30 +109,6 @@ int websocket_get_data(char *data, int dataLength)
     }
     return ret;
 }
-
-/*
- * Json-rpc 2.0 Examples
- * A simple request and response:
- * --> {"jsonrpc": "2.0", "method": "echo", "params": ["Hello JSON-RPC"], "id": 1}
- * <-- {"result": "Hello JSON-RPC", "error": null, "id": 1}
- * 
- * Procedure call with positional parameters:
- * --> {"jsonrpc": "2.0", "method": "subtract", "params": [42, 23], "id": 1}
- * <-- {"jsonrpc": "2.0", "result": 19, "id": 1}
- * 
- * --> {"jsonrpc": "2.0", "method": "subtract", "params": [23, 42], "id": 2}
- * <-- {"jsonrpc": "2.0", "result": -19, "id": 2}
- * 
- * Procedure call with named parameters:
- * --> {"jsonrpc": "2.0", "method": "subtract", "params": {"subtrahend": 23, "minuend": 42}, "id": 3}
- * <-- {"jsonrpc": "2.0", "result": 19, "id": 3}
- * 
- * Notification:
- * --> {"jsonrpc": "2.0", "method": "update", "params": [1,2,3,4,5]}
- * 
- * ADC Test:
- * {"jsonrpc": "2.0", "method": "sendADC", "params": [1], "id": 1}
- */
 
 //rpc prototype
 static
@@ -165,8 +177,8 @@ workstatus_t sendADC(const char* const pcJSONString, const jsmntok_t* const ps_a
     // 2 - Sensor de temperatura
     if (pcResponse && (param == 2)) {
 	ADCProcessorTrigger(ADC0_BASE, 1);
-	//while(!f_adc);
-        snprintf(pcResponse, iRespMaxLen, "\"%f\"", result-1);
+	while(!adc_rdy) {}
+        snprintf(pcResponse, iRespMaxLen, "\"%lu\"", ui32ADC0Value[1]);
     }
 
     //return status
@@ -178,7 +190,6 @@ static void
 json_adc(void *pvParameters) 
 {
     int32_t len;
-    float value;
     
     data_ok = 0;
     workstatus_t eStatus = rpc_install_methods(test_methods, sizeof(test_methods)/sizeof(test_methods[0]));
@@ -216,7 +227,7 @@ json_adc(void *pvParameters)
 	    f_adc = 0;
 	    memset(buff, 0, sizeof(buff));
 	    value = ((float)ui32ADC0Value[1] * 3.3) / 4096;
-	    snprintf( buff, 32, "Tensao:%2f, Temp:%2f", value, value/0.01);
+	    snprintf( buff, 32, "ADC:%lu, Temp:%2f", ui32ADC0Value[1], value/0.01);
 	    UARTprintf("%s\n", buff);
 	    vTaskDelay(1000 / portTICK_RATE_MS);
 	    //ADCProcessorTrigger(ADC0_BASE, 1);
@@ -227,7 +238,10 @@ json_adc(void *pvParameters)
 }
 
 uint32_t
-json_test_init(void) {
+json_test_init(void) 
+{
+    adc_rdy = 0;
+    f_adc = 0;
 
     if (xTaskCreate(json_adc, (const portCHAR * const)"JSON_RPC", 
 	STACKSIZE_RPC_TEST, NULL, tskIDLE_PRIORITY + PRIORITY_HELLO_WORLD_TASK, NULL) != pdTRUE) {
@@ -236,18 +250,6 @@ json_test_init(void) {
 
     // Success.
     return(0);
-}
-
-void ADCISRHandler(void)
-{
-    while (!ADCIntStatus(ADC0_BASE, 1, false)){};
-
-    ADCIntClear(ADC0_BASE, 1);
-    ADCSequenceDataGet(ADC0_BASE, 1, ui32ADC0Value);
-
-    f_adc = 1;
-    //ui32TempAvg = ui32ADC0Value[3];
-    //ui32TempValueC = (1475 - ((2475 * ui32TempAvg)) / 4096) / 10;
 }
 
 void ADCConfig(void)

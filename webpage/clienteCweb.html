@@ -29,10 +29,10 @@
     
     
     <script type="text/javascript">
-	var recv = new Array(512);
-	var x;
+	var str;
 	var ws;
 	var isOpen = false;
+	var isReady = false;
         $(document).ready(function() {
             //var ws;
             $('#connectForm').on('submit', function() {
@@ -52,8 +52,9 @@
                     };
                     ws.onmessage = function(event) {
                         //$('#log').append('<li>recieved: <span class="badge">' + event.data + '</span></li>');
-                        console.log('<li>recieved: <span class="badge">' + event.data + '</span></li>');
-                        recv[x++] = event.data;
+                        //console.log('<li>recieved: <span class="badge">' + event.data + '</span></li>');
+                        str = event.data;
+                        isReady = true;
                     };
                     ws.onclose = function() {
                         $('#log').append('<li><span class="badge badge-important">websocket closed</span></li>');
@@ -89,7 +90,6 @@
 	// Full Height and Width
 	var canvasHeight = $(document).height() / 2;
 	var canvasWidth = $(document).width() / 2;
-	var j = 0;
 
 	// Create Canvas Element
 	var canvas = document.createElement('canvas');
@@ -140,46 +140,28 @@
 	    
 	    renderBackgroundScreen(0.02);
 	    if (isOpen == true)
-		ws.send('{"jsonrpc": "2.0", "method": "sendADC", "params": [1], "id": 1}');
+		ws.send('{"jsonrpc": "2.0", "method": "sendADC", "params": [2], "id": 1}');
 
 	    context.beginPath();
 	    context.moveTo(strokePositionX, strokePositionY);
 	    strokePositionX = strokePositionX + 1;
 
-	    strokePositionY = Math.sin(strokePositionX / 10) * 70 + 100;
-	    //strokePositionY = recv[j++] * 100;
-	    if (j >= 512)
-		j = 0;
-
-	    if ((strokePositionX >= canvasWidth * 20 / 100 && strokePositionX < canvasWidth * 24 / 100)
-	    || (strokePositionX >= canvasWidth * 70 / 100 && strokePositionX < canvasWidth * 74 / 100)) {
-		// Test audio has not been played
-		if (!audioPlayed) {
-		    //audio.play();
-		    audioPlayed = true;
-		}
-		//strokePositionY = strokePositionY - canvasHeight / 100;
-	    }
-
-	    else if ((strokePositionX >= canvasWidth * 24 / 100 && strokePositionX < canvasWidth * 32 / 100)
-	    || (strokePositionX >= canvasWidth * 74 / 100 && strokePositionX < canvasWidth * 82 / 100)) {
-		strokePositionY = strokePositionY + canvasHeight / 100;
-
-		// Reset Audio Played flag
-		audioPlayed = false;
-	    }
-
-	    else if ((strokePositionX >= canvasWidth * 32 / 100 && strokePositionX < canvasWidth * 36 / 100)
-	    || (strokePositionX >= canvasWidth * 82 / 100 && strokePositionX < canvasWidth * 86 / 100)) {
-		//strokePositionY = strokePositionY - canvasHeight / 100;
-	    }
-
-	    else if ((strokePositionX >= canvasWidth * 36 / 100 && strokePositionX < canvasWidth * 60 / 100)
-	    || (strokePositionX >= canvasWidth * 86 / 100 && strokePositionX <= canvasWidth)) {
-		//strokePositionY = canvasHeight / 2;
-	    }
-
-	    else if (strokePositionX > canvasWidth) {
+	    //strokePositionY = Math.sin(strokePositionX / 10) * 70 + 100;
+	    if (isReady == true) {
+		isReady = false;
+		//strokePositionY = recv[j];
+		var index = str.indexOf("result")
+		var value = str.substring(index+9, index+12);
+		var tensao = parseInt(value);
+		console.log('RAW tensao: ' + tensao);
+		console.log('Temperatura: ' + ((tensao * 3.3)/4096)*100);
+		//strokePositionY = recv[j++] * 100;
+		strokePositionY = ((tensao * 3.3)/4096)*100;
+	    } else
+		strokePositionY = canvasHeight / 2;
+	    
+	    
+	    if (strokePositionX > canvasWidth) {
 		strokePositionX = 0;
 		context.moveTo(strokePositionX, strokePositionY);
 	    }
