@@ -173,12 +173,19 @@ workstatus_t sendADC(const char* const pcJSONString, const jsmntok_t* const ps_a
     // 1 - Sensor de batimentos cardiacos
     if (pcResponse && (param == 1)) {
         snprintf(pcResponse, iRespMaxLen, "\"%f\"", result);
-    }
+    } else
     // 2 - Sensor de temperatura
     if (pcResponse && (param == 2)) {
 	ADCProcessorTrigger(ADC0_BASE, 1);
-	while(!adc_rdy) {}
+	while(!adc_rdy) {
+	    vTaskDelay(2 / portTICK_RATE_MS);
+	}
+	adc_rdy = 0;
         snprintf(pcResponse, iRespMaxLen, "\"%lu\"", ui32ADC0Value[1]);
+	// Debug
+	//memset(buff, 0, sizeof(buff));
+	//snprintf( buff, 32, "sendADC:%lu", ui32ADC0Value[1]);
+	//UARTprintf("%s\n", buff);
     }
 
     //return status
@@ -186,8 +193,7 @@ workstatus_t sendADC(const char* const pcJSONString, const jsmntok_t* const ps_a
 }
 
 // {"jsonrpc": "2.0", "method": "sendADC", "params": [2], "id": 1}
-static void
-json_adc(void *pvParameters) 
+static void json_adc(void *pvParameters) 
 {
     int32_t len;
     
@@ -198,22 +204,17 @@ json_adc(void *pvParameters)
 	assert(0);
     }
     ADCConfig();
-    ADCProcessorTrigger(ADC0_BASE, 1);
+    //ADCProcessorTrigger(ADC0_BASE, 1);
 
     while (1) {
 	if (data_ok == 0) {
 	    //fprintf(stderr, "fread(): errno=%d\n", errno);
 	} else {
 	    data_ok = 0;
-	    //UARTprintf("RPC recv: ");
-	    //UARTprintf(g_input);
-	    //UARTprintf("\n\n");
 	    //rpc
 	    eStatus = rpc_handle_command(g_input, strlen(g_input), g_output, MY_BUF_SIZE);
 		//text reply?
 	    if( (len = strlen(g_output)) > 0) {
-		//hs->allocated = 0;
-		//hs->size = len;
 		UARTprintf(">> %s\n", g_output);
 		libwebsock_send_text((uint8_t *)g_output, len);
 	    } else {
@@ -229,16 +230,13 @@ json_adc(void *pvParameters)
 	    value = ((float)ui32ADC0Value[1] * 3.3) / 4096;
 	    snprintf( buff, 32, "ADC:%lu, Temp:%2f", ui32ADC0Value[1], value/0.01);
 	    UARTprintf("%s\n", buff);
-	    vTaskDelay(1000 / portTICK_RATE_MS);
-	    //ADCProcessorTrigger(ADC0_BASE, 1);
 	}
 	vTaskDelay(10 / portTICK_RATE_MS);
     }
 
 }
 
-uint32_t
-json_test_init(void) 
+uint32_t json_test_init(void) 
 {
     adc_rdy = 0;
     f_adc = 0;
