@@ -105,6 +105,16 @@
 	strokePositionX = 0;
 	strokePositionY = canvasHeight / 2;
 
+	/* Funcao map() do Arduino: http://renatoaloi.blogspot.com.br/2013/12/funcao-map-do-arduino.html
+	long map(long x, long in_min, long in_max, long out_min, long out_max)
+	{
+	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+	}
+	*/
+	function map(x, in_min, in_max, out_min, out_max) {
+	    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+	}
+
 	/**
 	* Render the Background Screen
 	*/
@@ -144,7 +154,7 @@
 
 	    context.beginPath();
 	    context.moveTo(strokePositionX, strokePositionY);
-	    strokePositionX = strokePositionX + 1;
+	    strokePositionX = strokePositionX + 10;
 
 	    //strokePositionY = Math.sin(strokePositionX / 10) * 70 + 100;
 	    if (isReady == true) {
@@ -152,11 +162,19 @@
 		//strokePositionY = recv[j];
 		var index = str.indexOf("result")
 		var value = str.substring(index+9, index+12);
-		var tensao = parseInt(value);
-		console.log('RAW tensao: ' + tensao);
-		console.log('Temperatura: ' + ((tensao * 3.3)/4096)*100);
+		var rawVal = parseInt(value);
+		var tensao = ((rawVal * 3.3)/4096);
+		console.log('ADC value: ' + rawVal);
+		console.log('Temperatura: ' + tensao * 100;
 		//strokePositionY = recv[j++] * 100;
-		strokePositionY = ((tensao * 3.3)/4096)*100;
+		strokePositionY = tensao * 100;
+		/*
+		//Map and draw the line for new data point
+		inByte = map(inByte, 0, 1023, 0, height);
+		height_new = height - inByte; 
+		line(xPos - 1, height_old, xPos, height_new);
+		height_old = height_new;
+		*/
 	    } else
 		strokePositionY = canvasHeight / 2;
 	    
@@ -174,7 +192,7 @@
 	}
 
 	renderBackgroundScreen(1);
-	setInterval(drawHeartMonitorStroke, 30);
+	setInterval(drawHeartMonitorStroke, 60);
     </script>
 
 </body>
