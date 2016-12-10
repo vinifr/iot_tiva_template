@@ -34,7 +34,7 @@
  * Notification:
  * --> {"jsonrpc": "2.0", "method": "update", "params": [1,2,3,4,5]}
  * 
- * ADC Test:
+ * ADC Test - param 1 = sensor de batimentos cardiacos; param 2 = sensor de temperatura:
  * {"jsonrpc": "2.0", "method": "sendADC", "params": [1], "id": 1}
  */
 
@@ -84,7 +84,8 @@ uint32_t ui32ADC0Value[4];
 char buff[32];
 char f_adc, adc_rdy;
 int data_ok;
-float value;
+int param = 0;
+float value[2];
 
 void ADCConfig(void);
 
@@ -138,9 +139,6 @@ workstatus_t echo(const char* const pcJSONString, const jsmntok_t* const ps_argt
         return WORKSTATUS_RPC_ERROR_OUTOFRESBUF;
     }
 
-    //do function
-    //nothing
-
     //write retval
     if (pcResponse) {
         snprintf(pcResponse, iRespMaxLen, "\"%.*s\"", 
@@ -155,8 +153,7 @@ static
 workstatus_t sendADC(const char* const pcJSONString, const jsmntok_t* const ps_argtok,
           const jsmntok_t* const ps_alltoks, char* pcResponse, int iRespMaxLen)
 {
-    int param;
-    float result = 3.32;
+    //float result = 3.32;
     char *str1;
     //estimate
     const jsmntok_t* psToksub =
@@ -166,13 +163,26 @@ workstatus_t sendADC(const char* const pcJSONString, const jsmntok_t* const ps_a
         return WORKSTATUS_RPC_ERROR_OUTOFRESBUF;
     }
 
-    // Pega o valor do parametro recebido
+    // Pega o valor do parametro recebido: 1 - Heart, 2 - Temperatura
     str1 = strstr(pcJSONString+ps_argtok->start, "[");
     param = *(str1+1) - '0';
 
     // 1 - Sensor de batimentos cardiacos
-    if (pcResponse && (param == 1)) {
-        snprintf(pcResponse, iRespMaxLen, "\"%f\"", result);
+    if (pcResponse && (param == 1)) 
+    {	
+	//
+	if (ROM_GPIOPinRead(SENSOR_PORT, LO1_PIN) || 
+	    ROM_GPIOPinRead(SENSOR_PORT, LO2_PIN))
+	    ;
+	else
+	{
+	    ADCProcessorTrigger(ADC0_BASE, 1);
+	    while(!adc_rdy) {
+		vTaskDelay(2 / portTICK_RATE_MS);
+	    }
+	    adc_rdy = 0;
+	    snprintf(pcResponse, iRespMaxLen, "\"%lu\"", ui32ADC0Value[0]);
+	}
     } else
     // 2 - Sensor de temperatura
     if (pcResponse && (param == 2)) {
@@ -203,7 +213,7 @@ static void json_adc(void *pvParameters)
     if(eStatus != WORKSTATUS_NO_ERROR) {
 	assert(0);
     }
-    ADCConfig();
+    //ADCConfig();
     //ADCProcessorTrigger(ADC0_BASE, 1);
 
     while (1) {
@@ -227,11 +237,15 @@ static void json_adc(void *pvParameters)
 	if (f_adc) {
 	    f_adc = 0;
 	    memset(buff, 0, sizeof(buff));
-	    value = ((float)ui32ADC0Value[1] * 3.3) / 4096;
-	    snprintf( buff, 32, "ADC:%lu, Temp:%2f", ui32ADC0Value[1], value/0.01);
+	    value[0] = ((float)ui32ADC0Value[0] * 3.3) / 4096;
+	    value[1] = ((float)ui32ADC0Value[1] * 3.3) / 4096;
+	    if (param == 1)
+		snprintf( buff, 32, "ADC:%lu, Heart:%2f", ui32ADC0Value[0], value[0]);
+	    else if (param == 2)
+		snprintf( buff, 32, "ADC:%lu, Temp:%2f", ui32ADC0Value[1], value[1]/0.01);
 	    UARTprintf("%s\n", buff);
 	}
-	vTaskDelay(10 / portTICK_RATE_MS);
+	vTaskDelay(2 / portTICK_RATE_MS);
     }
 
 }
@@ -245,6 +259,7 @@ uint32_t json_test_init(void)
 	STACKSIZE_RPC_TEST, NULL, tskIDLE_PRIORITY + PRIORITY_HELLO_WORLD_TASK, NULL) != pdTRUE) {
         return(1);
     }
+    ADCConfig();
 
     // Success.
     return(0);

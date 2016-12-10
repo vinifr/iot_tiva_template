@@ -11,7 +11,7 @@
 
         <form action="" class="form-inline" id="connectForm">
             <div class="input-append">
-                <input type="text" class="input-large" value="ws://192.168.25.12" id="wsServer">
+                <input type="text" class="input-large" value="ws://192.168.25.121" id="wsServer">
                 <button class="btn" type="submit" id="connect">Connect</button>
                 <button class="btn" disabled="disabled" id="disconnect">Disconnect</button>
             </div>
@@ -150,7 +150,7 @@
 	    
 	    renderBackgroundScreen(0.02);
 	    if (isOpen == true)
-		ws.send('{"jsonrpc": "2.0", "method": "sendADC", "params": [2], "id": 1}');
+		ws.send('{"jsonrpc": "2.0", "method": "sendADC", "params": [1], "id": 1}');
 
 	    context.beginPath();
 	    context.moveTo(strokePositionX, strokePositionY);
@@ -165,9 +165,10 @@
 		var rawVal = parseInt(value);
 		var tensao = ((rawVal * 3.3)/4096);
 		console.log('ADC value: ' + rawVal);
-		console.log('Temperatura: ' + tensao * 100;
+		console.log('Heart: ' + (tensao));
+		//console.log('Temperatura: ' + (tensao * 100));
 		//strokePositionY = recv[j++] * 100;
-		strokePositionY = tensao * 100;
+		strokePositionY = tensao; // * 100;
 		/*
 		//Map and draw the line for new data point
 		inByte = map(inByte, 0, 1023, 0, height);

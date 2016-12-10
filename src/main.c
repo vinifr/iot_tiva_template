@@ -41,6 +41,7 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
+#include "main.h"
 
 uint32_t g_ui32SysClock;
 
@@ -132,6 +133,16 @@ void ConfigureUART(void)
     UARTStdioConfig(0, 115200, g_ui32SysClock);
 }
 
+void ConfigureGPIO(void)
+{
+    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOC); 
+    ROM_GPIOPinTypeGPIOInput(SENSOR_PORT, LO1_PIN);  //Enable the GPIO LO- as input
+    ROM_GPIODirModeSet(SENSOR_PORT, LO1_PIN, GPIO_DIR_MODE_IN);
+    
+    ROM_GPIOPinTypeGPIOInput(SENSOR_PORT, LO2_PIN);  //Enable the GPIO LO+ as input
+    ROM_GPIODirModeSet(SENSOR_PORT, LO2_PIN, GPIO_DIR_MODE_IN);
+}
+
 int
 main(void) {
 
@@ -149,6 +160,7 @@ main(void) {
     // Initialize the UART and write status.
     //
     ConfigureUART();
+    ConfigureGPIO();
 
     // Make sure the main oscillator is enabled because this is required by
     // the PHY.  The system must have a 25MHz crystal attached to the OSC
