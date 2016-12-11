@@ -237,6 +237,7 @@ static void json_adc(void *pvParameters)
 	if (f_adc) {
 	    f_adc = 0;
 	    memset(buff, 0, sizeof(buff));
+
 	    value[0] = ((float)ui32ADC0Value[0] * 3.3) / 4096;
 	    value[1] = ((float)ui32ADC0Value[1] * 3.3) / 4096;
 	    if (param == 1)
@@ -275,6 +276,9 @@ void ADCConfig(void)
 	ADCSequenceConfigure(ADC0_BASE, 1, ADC_TRIGGER_PROCESSOR, 0);
 
 	GPIOPinTypeADC(GPIO_PORTE_BASE, GPIO_PIN_2 | GPIO_PIN_3); // PE2(Temp) e PE3(Heart)
+	
+	GPIOPadConfigSet(GPIO_PORTP_BASE, GPIO_PIN_2, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPD);
+	GPIOPadConfigSet(GPIO_PORTP_BASE, GPIO_PIN_3, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPD);
 
 	ADCSequenceStepConfigure(ADC0_BASE, 1, 0, ADC_CTL_CH0);
 	ADCSequenceStepConfigure(ADC0_BASE, 1, 1, ADC_CTL_CH1 | ADC_CTL_IE | ADC_CTL_END);
