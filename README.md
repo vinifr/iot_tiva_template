@@ -1,8 +1,8 @@
 # IoT tiva template
 
 This application:
-- toggles PA1 depending on IP status; and
-- sends out a UDP package every five seconds containg "Hello World!"
+- A websocket client that receive data from heart monitor using websocket protocol
+and plot a graph
 
 Compile:
 ```
