@@ -216,21 +216,22 @@ static void json_adc(void *pvParameters)
     //ADCConfig();
     //ADCProcessorTrigger(ADC0_BASE, 1);
 
-    while (1) {
-	if (data_ok == 0) {
+    while (1)
+    {
+	if (data_ok != 0) {
 	    //fprintf(stderr, "fread(): errno=%d\n", errno);
-	} else {
 	    data_ok = 0;
 	    //rpc
 	    eStatus = rpc_handle_command(g_input, strlen(g_input), g_output, MY_BUF_SIZE);
 		//text reply?
-	    if( (len = strlen(g_output)) > 0) {
-		UARTprintf(">> %s\n", g_output);
+	    if( (len = strlen(g_output)) > 0)
+	    {
+		//UARTprintf(">> %s\n", g_output);
 		libwebsock_send_text((uint8_t *)g_output, len);
 	    } else {
 		UARTprintf(">> no reply\n");
 	    }
-	    UARTprintf("%s\n", workstatus_to_string(eStatus));
+	    //UARTprintf("%s\n", workstatus_to_string(eStatus));
 	    memset(g_output, 0, sizeof(g_output));
 	}
 	
@@ -240,13 +241,13 @@ static void json_adc(void *pvParameters)
 
 	    value[0] = ((float)ui32ADC0Value[0] * 3.3) / 4096;
 	    value[1] = ((float)ui32ADC0Value[1] * 3.3) / 4096;
-	    if (param == 1)
+	    /*if (param == 1)
 		snprintf( buff, 32, "ADC:%lu, Heart:%2f", ui32ADC0Value[0], value[0]);
 	    else if (param == 2)
 		snprintf( buff, 32, "ADC:%lu, Temp:%2f", ui32ADC0Value[1], value[1]/0.01);
-	    UARTprintf("%s\n", buff);
+	    UARTprintf("%s\n", buff);*/
 	}
-	vTaskDelay(2 / portTICK_RATE_MS);
+	vTaskDelay(1 / portTICK_RATE_MS);
     }
 
 }

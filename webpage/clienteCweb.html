@@ -154,7 +154,7 @@
 
 	    context.beginPath();
 	    context.moveTo(strokePositionX, strokePositionY);
-	    strokePositionX = strokePositionX + 10;
+	    strokePositionX = strokePositionX + 1.0;
 
 	    //strokePositionY = Math.sin(strokePositionX / 10) * 70 + 100;
 	    if (isReady == true) {
@@ -164,18 +164,18 @@
 		var value = str.substring(index+9, index+12);
 		var rawVal = parseInt(value);
 		var tensao = ((rawVal * 3.3)/4096);
-		console.log('ADC value: ' + rawVal);
-		console.log('Heart: ' + (tensao));
+		//console.log('ADC value: ' + rawVal);
+		//console.log('Heart: ' + (tensao));
 		//console.log('Temperatura: ' + (tensao * 100));
 		//strokePositionY = recv[j++] * 100;
-		strokePositionY = tensao; // * 100;
-		/*
+		strokePositionY = tensao * 1000;
+		//tensao *= 100;
+
 		//Map and draw the line for new data point
-		inByte = map(inByte, 0, 1023, 0, height);
-		height_new = height - inByte; 
-		line(xPos - 1, height_old, xPos, height_new);
-		height_old = height_new;
-		*/
+		//var inByte = map(tensao, 0, 4095, 0, canvasHeight);
+		//strokePositionY = canvasHeight - inByte;//var height_new = canvasHeight - inByte;
+		//line(xPos - 1, height_old, xPos, height_new);
+		//height_old = height_new;
 	    } else
 		strokePositionY = canvasHeight / 2;
 	    
@@ -193,7 +193,7 @@
 	}
 
 	renderBackgroundScreen(1);
-	setInterval(drawHeartMonitorStroke, 60);
+	setInterval(drawHeartMonitorStroke, 10);
     </script>
 
 </body>
