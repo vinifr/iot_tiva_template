@@ -4,7 +4,7 @@ This application:
 - A websocket client that receive data from heart monitor using websocket protocol
 and plot a graph
 
-Compile:
+Compile: (This project uses gcc-arm-none-eabi compiler)
 ```
 git submodule init
 git submodule update
