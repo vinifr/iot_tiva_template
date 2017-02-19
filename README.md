@@ -4,7 +4,7 @@ This application:
 - toggles PA1 depending on IP status; and
 - sends out a UDP package every five seconds containg "Hello World!"
 
-Compile:
+Compile: (This project uses gcc-arm-none-eabi compiler)
 ```
 git submodule init
 git submodule update
