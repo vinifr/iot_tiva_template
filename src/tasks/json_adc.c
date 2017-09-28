@@ -35,7 +35,8 @@
  * --> {"jsonrpc": "2.0", "method": "update", "params": [1,2,3,4,5]}
  * 
  * ADC Test - param 1 = sensor de batimentos cardiacos; param 2 = sensor de temperatura:
- * {"jsonrpc": "2.0", "method": "sendADC", "params": [1], "id": 1}
+ *  --> {"jsonrpc": "2.0", "method": "sendADC", "params": [1], "id": 1}
+ *  <-- {"jsonrpc":"2.0", "id":1, "result":} (Resposta)
  */
 
 #include <stdint.h>
@@ -77,6 +78,8 @@
 
 #define MY_BUF_SIZE 128
 
+#define EMPTY "{\"jsonrpc\":\"2.0\", \"id\":1, \"result\":\"0\"}"
+
 char g_input[MY_BUF_SIZE];
 char g_output[MY_BUF_SIZE];
 
@@ -104,9 +107,9 @@ int websocket_get_data(char *data, int dataLength)
 {
     int ret = 0;
     if (dataLength > 0) {
-	memcpy(g_input, data, dataLength);
-	ret = 1;
-	data_ok = 1;
+		memcpy(g_input, data, dataLength);
+		ret = 1;
+		data_ok = 1;
     }
     return ret;
 }
@@ -170,32 +173,33 @@ workstatus_t sendADC(const char* const pcJSONString, const jsmntok_t* const ps_a
     // 1 - Sensor de batimentos cardiacos
     if (pcResponse && (param == 1)) 
     {	
-	//
-	if (ROM_GPIOPinRead(SENSOR_PORT, LO1_PIN) || 
-	    ROM_GPIOPinRead(SENSOR_PORT, LO2_PIN))
-	    ;
-	else
-	{
-	    ADCProcessorTrigger(ADC0_BASE, 1);
-	    while(!adc_rdy) {
-		vTaskDelay(2 / portTICK_RATE_MS);
-	    }
-	    adc_rdy = 0;
-	    snprintf(pcResponse, iRespMaxLen, "\"%lu\"", ui32ADC0Value[0]);
-	}
-    } else
-    // 2 - Sensor de temperatura
-    if (pcResponse && (param == 2)) {
-	ADCProcessorTrigger(ADC0_BASE, 1);
-	while(!adc_rdy) {
-	    vTaskDelay(2 / portTICK_RATE_MS);
-	}
-	adc_rdy = 0;
+		//
+		if (ROM_GPIOPinRead(SENSOR_PORT, LO1_PIN) || 
+			ROM_GPIOPinRead(SENSOR_PORT, LO2_PIN)) {
+			ui32ADC0Value[0] = 1;
+			snprintf(pcResponse, iRespMaxLen, "\"%lu\"", ui32ADC0Value[0]);
+		}
+		else
+		{
+			ADCProcessorTrigger(ADC0_BASE, 1);
+			while(!adc_rdy) {
+			vTaskDelay(2 / portTICK_RATE_MS);
+			}
+			adc_rdy = 0;
+			snprintf(pcResponse, iRespMaxLen, "\"%lu\"", ui32ADC0Value[0]);
+		}
+		// 2 - Sensor de temperatura
+    } else  if (pcResponse && (param == 2)) {
+		ADCProcessorTrigger(ADC0_BASE, 1);
+		while(!adc_rdy) {
+			vTaskDelay(2 / portTICK_RATE_MS);
+		}
+		adc_rdy = 0;
         snprintf(pcResponse, iRespMaxLen, "\"%lu\"", ui32ADC0Value[1]);
-	// Debug
-	//memset(buff, 0, sizeof(buff));
-	//snprintf( buff, 32, "sendADC:%lu", ui32ADC0Value[1]);
-	//UARTprintf("%s\n", buff);
+		// Debug
+		//memset(buff, 0, sizeof(buff));
+		//snprintf( buff, 32, "sendADC:%lu", ui32ADC0Value[1]);
+		//UARTprintf("%s\n", buff);
     }
 
     //return status
@@ -218,36 +222,38 @@ static void json_adc(void *pvParameters)
 
     while (1)
     {
-	if (data_ok != 0) {
-	    //fprintf(stderr, "fread(): errno=%d\n", errno);
-	    data_ok = 0;
-	    //rpc
-	    eStatus = rpc_handle_command(g_input, strlen(g_input), g_output, MY_BUF_SIZE);
-		//text reply?
-	    if( (len = strlen(g_output)) > 0)
-	    {
-		//UARTprintf(">> %s\n", g_output);
-		libwebsock_send_text((uint8_t *)g_output, len);
-	    } else {
-		UARTprintf(">> no reply\n");
-	    }
-	    //UARTprintf("%s\n", workstatus_to_string(eStatus));
-	    memset(g_output, 0, sizeof(g_output));
-	}
-	
-	if (f_adc) {
-	    f_adc = 0;
-	    memset(buff, 0, sizeof(buff));
+		if (data_ok != 0) {
+			//fprintf(stderr, "fread(): errno=%d\n", errno);
+			data_ok = 0;
+			//rpc
+			eStatus = rpc_handle_command(g_input, strlen(g_input), g_output, MY_BUF_SIZE);
+			//text reply?
+			if( (len = strlen(g_output)) > 0)
+			{
+				//UARTprintf(">> %s\n", g_output);
+				libwebsock_send_text((uint8_t *)g_output, len);
+			} else {
+				//UARTprintf(">> %s\n", g_output);
+				UARTprintf(">> no reply\n");
+				libwebsock_send_text((uint8_t *)EMPTY, len);
+			}
+			//UARTprintf("%s\n", workstatus_to_string(eStatus));
+			memset(g_output, 0, sizeof(g_output));
+		}
 
-	    value[0] = ((float)ui32ADC0Value[0] * 3.3) / 4096;
-	    value[1] = ((float)ui32ADC0Value[1] * 3.3) / 4096;
-	    /*if (param == 1)
-		snprintf( buff, 32, "ADC:%lu, Heart:%2f", ui32ADC0Value[0], value[0]);
-	    else if (param == 2)
-		snprintf( buff, 32, "ADC:%lu, Temp:%2f", ui32ADC0Value[1], value[1]/0.01);
-	    UARTprintf("%s\n", buff);*/
-	}
-	vTaskDelay(1 / portTICK_RATE_MS);
+		if (f_adc) {
+			f_adc = 0;
+			memset(buff, 0, sizeof(buff));
+
+			value[0] = ((float)ui32ADC0Value[0] * 3.3) / 4096;
+			value[1] = ((float)ui32ADC0Value[1] * 3.3) / 4096;
+			/*if (param == 1)
+			snprintf( buff, 32, "ADC:%lu, Heart:%2f", ui32ADC0Value[0], value[0]);
+			else if (param == 2)
+			snprintf( buff, 32, "ADC:%lu, Temp:%2f", ui32ADC0Value[1], value[1]/0.01);
+			UARTprintf("%s\n", buff);*/
+		}
+		vTaskDelay(1 / portTICK_RATE_MS);
     }
 
 }

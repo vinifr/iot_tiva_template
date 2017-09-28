@@ -11,7 +11,7 @@
 
         <form action="" class="form-inline" id="connectForm">
             <div class="input-append">
-                <input type="text" class="input-large" value="ws://192.168.25.121" id="wsServer">
+                <input type="text" class="input-large" value="ws://192.168.25.15" id="wsServer">
                 <button class="btn" type="submit" id="connect">Connect</button>
                 <button class="btn" disabled="disabled" id="disconnect">Disconnect</button>
             </div>
@@ -63,6 +63,7 @@
                         $('#disconnect').attr('disabled', 'disabled');
                         $('#message').attr('disabled', 'disabled');
                         $('#send').attr('disabled', 'disabled');
+                        isOpen = false;
                     };
                 } else {
                     $('#log').append('<li><span class="badge badge-important">WebSocket NOT supported in this browser</span></li>');
@@ -84,8 +85,8 @@
         
         // Plot ADC values received
         // Heart Monitor Audio
-	var audio = new Audio('http://www.dallasjclark.com/wordpress/wp-content/uploads/2016/05/Heart-Rate-Monitor.mp3');
-	var audioPlayed = false;
+	//var audio = new Audio('http://www.dallasjclark.com/wordpress/wp-content/uploads/2016/05/Heart-Rate-Monitor.mp3');
+	//var audioPlayed = false;
 
 	// Full Height and Width
 	var canvasHeight = $(document).height() / 2;
@@ -149,8 +150,9 @@
 	    context.restore();
 	    
 	    renderBackgroundScreen(0.02);
-	    if (isOpen == true)
-		ws.send('{"jsonrpc": "2.0", "method": "sendADC", "params": [1], "id": 1}');
+	    if (isOpen == true) {
+			ws.send('{"jsonrpc": "2.0", "method": "sendADC", "params": [1], "id": 1}');
+		}
 
 	    context.beginPath();
 	    context.moveTo(strokePositionX, strokePositionY);
@@ -168,7 +170,10 @@
 		//console.log('Heart: ' + (tensao));
 		//console.log('Temperatura: ' + (tensao * 100));
 		//strokePositionY = recv[j++] * 100;
-		strokePositionY = tensao * 1000;
+		if (!tensao)
+			strokePositionY = tensao * 1000;
+		else
+			strokePositionY = canvasHeight / 2;
 		//tensao *= 100;
 
 		//Map and draw the line for new data point
