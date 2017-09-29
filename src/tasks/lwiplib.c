@@ -146,7 +146,7 @@ lwIPInterruptTask(void *pvArg)
         //
         // Re-enable the Ethernet interrupts.
         //
-        MAP_EMACIntEnable(EMAC0_BASE, (EMAC_INT_RECEIVE | EMAC_INT_TRANSMIT |
+        EMACIntEnable(EMAC0_BASE, (EMAC_INT_RECEIVE | EMAC_INT_TRANSMIT |
                                        EMAC_INT_TX_STOPPED |
                                        EMAC_INT_RX_NO_BUFFER |
                                        EMAC_INT_RX_STOPPED | EMAC_INT_PHY));
@@ -168,7 +168,7 @@ lwIPLinkDetect(void)
     //
     // See if there is an active link.
     //
-    bHaveLink = MAP_EMACPHYRead(EMAC0_BASE, 0, EPHY_BMSR) & EPHY_BMSR_LINKSTAT;
+    bHaveLink = EMACPHYRead(EMAC0_BASE, 0, EPHY_BMSR) & EPHY_BMSR_LINKSTAT;
 
     //
     // Return without doing anything else if the link state hasn't changed.
@@ -414,8 +414,8 @@ lwIPInit(uint32_t ui32SysClkHz, const uint8_t *pui8MAC, uint32_t ui32IPAddr,
     //
     // Enable the ethernet peripheral.
     //
-    MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_EMAC0);
-    MAP_SysCtlPeripheralReset(SYSCTL_PERIPH_EMAC0);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_EMAC0);
+    SysCtlPeripheralReset(SYSCTL_PERIPH_EMAC0);
 
     //
     // Enable the internal PHY if it's present and we're being
@@ -427,13 +427,13 @@ lwIPInit(uint32_t ui32SysClkHz, const uint8_t *pui8MAC, uint32_t ui32IPAddr,
         // We've been asked to configure for use with the internal
         // PHY.  Is it present?
         //
-        if(MAP_SysCtlPeripheralPresent(SYSCTL_PERIPH_EPHY0))
+        if(SysCtlPeripheralPresent(SYSCTL_PERIPH_EPHY0))
         {
             //
             // Yes - enable and reset it.
             //
-            MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_EPHY0);
-            MAP_SysCtlPeripheralReset(SYSCTL_PERIPH_EPHY0);
+            SysCtlPeripheralEnable(SYSCTL_PERIPH_EPHY0);
+            SysCtlPeripheralReset(SYSCTL_PERIPH_EPHY0);
         }
         else
         {
@@ -449,26 +449,26 @@ lwIPInit(uint32_t ui32SysClkHz, const uint8_t *pui8MAC, uint32_t ui32IPAddr,
     //
     // Wait for the MAC to come out of reset.
     //
-    while(!MAP_SysCtlPeripheralReady(SYSCTL_PERIPH_EMAC0))
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_EMAC0))
     {
     }
 
     //
     // Configure for use with whichever PHY the user requires.
     //
-    MAP_EMACPHYConfigSet(EMAC0_BASE, EMAC_PHY_CONFIG);
+    EMACPHYConfigSet(EMAC0_BASE, EMAC_PHY_CONFIG);
 
     //
     // Initialize the MAC and set the DMA mode.
     //
-    MAP_EMACInit(EMAC0_BASE, ui32SysClkHz,
+    EMACInit(EMAC0_BASE, ui32SysClkHz,
                  EMAC_BCONFIG_MIXED_BURST | EMAC_BCONFIG_PRIORITY_FIXED,
                  4, 4, 0);
 
     //
     // Set MAC configuration options.
     //
-    MAP_EMACConfigSet(EMAC0_BASE, (EMAC_CONFIG_FULL_DUPLEX |
+    EMACConfigSet(EMAC0_BASE, (EMAC_CONFIG_FULL_DUPLEX |
                                    EMAC_CONFIG_CHECKSUM_OFFLOAD |
                                    EMAC_CONFIG_7BYTE_PREAMBLE |
                                    EMAC_CONFIG_IF_GAP_96BITS |
@@ -483,7 +483,7 @@ lwIPInit(uint32_t ui32SysClkHz, const uint8_t *pui8MAC, uint32_t ui32IPAddr,
     //
     // Program the hardware with its MAC address (for filtering).
     //
-    MAP_EMACAddrSet(EMAC0_BASE, 0, (uint8_t *)pui8MAC);
+    EMACAddrSet(EMAC0_BASE, 0, (uint8_t *)pui8MAC);
 
     //
     // Save the network configuration for later use by the private
@@ -564,7 +564,7 @@ lwIPEthernetIntHandler(void)
     //
     // Read and Clear the interrupt.
     //
-    ui32Status = MAP_EMACIntStatus(EMAC0_BASE, true);
+    ui32Status = EMACIntStatus(EMAC0_BASE, true);
 
     //
     // If the interrupt really came from the Ethernet and not our
@@ -572,7 +572,7 @@ lwIPEthernetIntHandler(void)
     //
     if(ui32Status)
     {
-        MAP_EMACIntClear(EMAC0_BASE, ui32Status);
+        EMACIntClear(EMAC0_BASE, ui32Status);
     }
 
     //
@@ -605,7 +605,7 @@ lwIPEthernetIntHandler(void)
     // handled, they are not asserted.  Once they are handled by the Ethernet
     // interrupt task, it will re-enable the interrupts.
     //
-    MAP_EMACIntDisable(EMAC0_BASE, (EMAC_INT_RECEIVE | EMAC_INT_TRANSMIT |
+    EMACIntDisable(EMAC0_BASE, (EMAC_INT_RECEIVE | EMAC_INT_TRANSMIT |
                                     EMAC_INT_TX_STOPPED |
                                     EMAC_INT_RX_NO_BUFFER |
                                     EMAC_INT_RX_STOPPED | EMAC_INT_PHY));
@@ -696,7 +696,7 @@ lwIPLocalGWAddrGet(void)
 void
 lwIPLocalMACGet(uint8_t *pui8MAC)
 {
-    MAP_EMACAddrGet(EMAC0_BASE, 0, pui8MAC);
+    EMACAddrGet(EMAC0_BASE, 0, pui8MAC);
 }
 
 //*****************************************************************************

@@ -64,41 +64,41 @@ void
 pin_init(void) {
 
     // Enable all the GPIO peripherals
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOC);
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOG);
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOH);
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOJ);
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOK);
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOL);
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOM);
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPION);
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOP);
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOQ);
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOR);
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOS);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOC);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOG);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOH);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOJ);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOK);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOL);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOM);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPION);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOP);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOQ);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOR);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOS);
 
     // PF1/PK4/PK6 are used for Ethernet LEDs
-    ROM_GPIOPinConfigure(GPIO_PK4_EN0LED0);
-    ROM_GPIOPinConfigure(GPIO_PK6_EN0LED1);
+    GPIOPinConfigure(GPIO_PK4_EN0LED0);
+    GPIOPinConfigure(GPIO_PK6_EN0LED1);
     GPIOPinTypeEthernetLED(GPIO_PORTK_BASE, GPIO_PIN_4);
     GPIOPinTypeEthernetLED(GPIO_PORTK_BASE, GPIO_PIN_6);
 
 #ifdef DEVKIT
     // PN5 is used for the user LED
-    ROM_GPIOPinTypeGPIOOutput(GPIO_PORTN_BASE, GPIO_PIN_5);
-    ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_5, 0);
+    GPIOPinTypeGPIOOutput(GPIO_PORTN_BASE, GPIO_PIN_5);
+    GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_5, 0);
 #else
     // PN0-1 is used for the user LED
-    ROM_GPIOPinTypeGPIOOutput(GPIO_PORTN_BASE, GPIO_PIN_1 | GPIO_PIN_0);
-    ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_1 | GPIO_PIN_0,  GPIO_PIN_0);
+    GPIOPinTypeGPIOOutput(GPIO_PORTN_BASE, GPIO_PIN_1 | GPIO_PIN_0);
+    GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_1 | GPIO_PIN_0,  GPIO_PIN_0);
     // PH2-3 is used for the user LED
-    ROM_GPIOPinTypeGPIOOutput(GPIO_PORTH_BASE, GPIO_PIN_3 | GPIO_PIN_2);
-    ROM_GPIOPinWrite(GPIO_PORTH_BASE, GPIO_PIN_3 | GPIO_PIN_2, GPIO_PIN_3 | GPIO_PIN_2);
+    GPIOPinTypeGPIOOutput(GPIO_PORTH_BASE, GPIO_PIN_3 | GPIO_PIN_2);
+    GPIOPinWrite(GPIO_PORTH_BASE, GPIO_PIN_3 | GPIO_PIN_2, GPIO_PIN_3 | GPIO_PIN_2);
 #endif
 
 }
@@ -113,19 +113,19 @@ void ConfigureUART(void)
     //
     // Enable the GPIO Peripheral used by the UART.
     //
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
 
     //
     // Enable UART0.
     //
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
 
     //
     // Configure GPIO Pins for UART mode.
     //
-    ROM_GPIOPinConfigure(GPIO_PA0_U0RX);
-    ROM_GPIOPinConfigure(GPIO_PA1_U0TX);
-    ROM_GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
+    GPIOPinConfigure(GPIO_PA0_U0RX);
+    GPIOPinConfigure(GPIO_PA1_U0TX);
+    GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
 
     //
     // Initialize the UART for console I/O.
@@ -135,12 +135,12 @@ void ConfigureUART(void)
 
 void ConfigureGPIO(void)
 {
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOC); 
-    ROM_GPIOPinTypeGPIOInput(SENSOR_PORT, LO1_PIN);  //Enable the GPIO LO- as input
-    ROM_GPIODirModeSet(SENSOR_PORT, LO1_PIN, GPIO_DIR_MODE_IN);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOC); 
+    GPIOPinTypeGPIOInput(SENSOR_PORT, LO1_PIN);  //Enable the GPIO LO- as input
+    GPIODirModeSet(SENSOR_PORT, LO1_PIN, GPIO_DIR_MODE_IN);
     
-    ROM_GPIOPinTypeGPIOInput(SENSOR_PORT, LO2_PIN);  //Enable the GPIO LO+ as input
-    ROM_GPIODirModeSet(SENSOR_PORT, LO2_PIN, GPIO_DIR_MODE_IN);
+    GPIOPinTypeGPIOInput(SENSOR_PORT, LO2_PIN);  //Enable the GPIO LO+ as input
+    GPIODirModeSet(SENSOR_PORT, LO2_PIN, GPIO_DIR_MODE_IN);
 }
 
 int

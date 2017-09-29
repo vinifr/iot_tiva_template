@@ -72,7 +72,7 @@ CP = ${TOOLCHAIN}-objcopy
 OD = ${TOOLCHAIN}-objdump
 
 CFLAGS  = -mthumb -mcpu=$(CPU) -mfpu=$(FPU) -mfloat-abi=$(FABI)
-CFLAGS += -Os -ffunction-sections -fdata-sections --specs=rdimon.specs
+CFLAGS += -O0 -ffunction-sections -fdata-sections --specs=rdimon.specs
 CFLAGS += -MD -std=gnu99 -Wall 
 CFLAGS += -Wno-char-subscripts -Wno-address -Wno-switch
 CFLAGS += -DPART_$(PART) -c -DTARGET_IS_TM4C129_RA0

@@ -6,12 +6,12 @@
     <script src="http://code.jquery.com/jquery.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1 class="page-header">Websocket client</h1>
+    <div class="container" align="center">
+        <h1 class="page-header">Websocket Heart Monitor</h1>
 
         <form action="" class="form-inline" id="connectForm">
             <div class="input-append">
-                <input type="text" class="input-large" value="ws://192.168.25.15" id="wsServer">
+                <input type="text" class="input-large" value="ws://192.168.25.17" id="wsServer">
                 <button class="btn" type="submit" id="connect">Connect</button>
                 <button class="btn" disabled="disabled" id="disconnect">Disconnect</button>
             </div>
@@ -25,8 +25,7 @@
         <hr>
         <ul class="unstyled" id="log"></ul>
     </div>
-    
-    
+    <canvas id="myCanvas" align="center"></canvas>
     
     <script type="text/javascript">
 	var str;
@@ -83,14 +82,14 @@
             });
         });
         
-        // Plot ADC values received
-        // Heart Monitor Audio
+   // Plot ADC values received
+   // Heart Monitor Audio
 	//var audio = new Audio('http://www.dallasjclark.com/wordpress/wp-content/uploads/2016/05/Heart-Rate-Monitor.mp3');
 	//var audioPlayed = false;
 
 	// Full Height and Width
 	var canvasHeight = $(document).height() / 2;
-	var canvasWidth = $(document).width() / 2;
+	var canvasWidth = $(document).width() / 1.5;
 
 	// Create Canvas Element
 	var canvas = document.createElement('canvas');
@@ -105,6 +104,7 @@
 	// Stroke Positions
 	strokePositionX = 0;
 	strokePositionY = canvasHeight / 2;
+	//file:///home/vini/projs/TCC/websockets/iot_tiva_template/webpage/tcc_ekg.css
 
 	/* Funcao map() do Arduino: http://renatoaloi.blogspot.com.br/2013/12/funcao-map-do-arduino.html
 	long map(long x, long in_min, long in_max, long out_min, long out_max)
@@ -165,16 +165,19 @@
 		var index = str.indexOf("result")
 		var value = str.substring(index+9, index+12);
 		var rawVal = parseInt(value);
-		var tensao = ((rawVal * 3.3)/4096);
-		//console.log('ADC value: ' + rawVal);
+		//var tensao = ((rawVal * 3.3)/4096);
+		if (rawVal > 0 && rawVal < 2048)
+            posY = (rawVal - (canvasHeight / 8)) * 2;
+        else
+            posY = (rawVal + (canvasHeight / 8)) * 2;
+		
+		console.log('ADC value: ' + rawVal);
+		console.log('posY: ' + (posY));
 		//console.log('Heart: ' + (tensao));
 		//console.log('Temperatura: ' + (tensao * 100));
-		//strokePositionY = recv[j++] * 100;
-		if (!tensao)
-			strokePositionY = tensao * 1000;
-		else
-			strokePositionY = canvasHeight / 2;
-		//tensao *= 100;
+		//strokePositionY = tensao * 1000;
+
+		strokePositionY = posY;
 
 		//Map and draw the line for new data point
 		//var inByte = map(tensao, 0, 4095, 0, canvasHeight);
@@ -182,12 +185,12 @@
 		//line(xPos - 1, height_old, xPos, height_new);
 		//height_old = height_new;
 	    } else
-		strokePositionY = canvasHeight / 2;
+			strokePositionY = canvasHeight / 2;
 	    
 	    
 	    if (strokePositionX > canvasWidth) {
-		strokePositionX = 0;
-		context.moveTo(strokePositionX, strokePositionY);
+			strokePositionX = 0;
+			context.moveTo(strokePositionX, strokePositionY);
 	    }
 
 	    context.lineTo(strokePositionX, strokePositionY);
@@ -198,7 +201,7 @@
 	}
 
 	renderBackgroundScreen(1);
-	setInterval(drawHeartMonitorStroke, 10);
+	setInterval(drawHeartMonitorStroke, 15);
     </script>
 
 </body>

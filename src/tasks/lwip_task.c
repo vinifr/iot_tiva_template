@@ -27,6 +27,7 @@
 #include "inc/hw_ints.h"
 #include "inc/hw_types.h"
 #include "driverlib/rom.h"
+#include "driverlib/interrupt.h"
 #include "lwiplib.h"
 #include "httpserver_raw/httpd.h"
 #include "httpserver_raw/fsdata.h"
@@ -65,8 +66,8 @@ lwIPTaskInit(void)
 {
     uint8_t pui8MAC[6];    
 
-    uint32_t ui32User0, ui32User1;
-    ROM_FlashUserGet(&ui32User0, &ui32User1);
+    uint32_t ui32User0 = 0xffffffff, ui32User1 = 0xffffffff;
+    //ROM_FlashUserGet(&ui32User0, &ui32User1);
 
     if((ui32User0 == 0xffffffff) || (ui32User1 == 0xffffffff)) {
 
@@ -94,7 +95,7 @@ lwIPTaskInit(void)
     // so that the interrupt handler can safely call the interrupt-safe
     // FreeRTOS functions (specifically to send messages to the queue).
     //
-    ROM_IntPrioritySet(INT_EMAC0, 0xC0);
+    IntPrioritySet(INT_EMAC0, 0xC0);
 
     //
     // Initialize lwIP.

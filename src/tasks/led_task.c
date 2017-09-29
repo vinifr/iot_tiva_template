@@ -55,9 +55,9 @@ LEDTask(void *pvParameters) {
 
             // Turn off the user LED.
             #ifdef DEVKIT
-                ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_5, GPIO_PIN_5);
+                GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_5, GPIO_PIN_5);
             #else
-                ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_1, GPIO_PIN_1);
+                GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_1, GPIO_PIN_1);
             #endif
 
             // Wait for the required amount of time.
@@ -65,9 +65,9 @@ LEDTask(void *pvParameters) {
 
             // Turn on the user LED.
             #ifdef DEVKIT
-                ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_5, 0);
+                GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_5, 0);
             #else
-                ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_1, 0);
+                GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_1, 0);
             #endif
 
             // Wait for the required amount of time.
@@ -78,9 +78,9 @@ LEDTask(void *pvParameters) {
 
             // Turn off the user LED.
             #ifdef DEVKIT
-                ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_5, GPIO_PIN_5);
+                GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_5, GPIO_PIN_5);
             #else
-                ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_1, GPIO_PIN_1);
+                GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_1, GPIO_PIN_1);
             #endif
 
             // Wait for the required amount of time.
@@ -88,9 +88,9 @@ LEDTask(void *pvParameters) {
 
             // Turn on the user LED.
             #ifdef DEVKIT
-                ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_5, 0);
+                GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_5, 0);
             #else
-                ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_1, 0);
+                GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_1, 0);
             #endif
 
             // Wait for the required amount of time.
@@ -101,9 +101,9 @@ LEDTask(void *pvParameters) {
 
             // Turn off the user LED.
             #ifdef DEVKIT
-                ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_5, GPIO_PIN_5);
+                GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_5, GPIO_PIN_5);
             #else
-                ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_1, GPIO_PIN_1);
+                GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_1, GPIO_PIN_1);
             #endif
 
             // Wait for the required amount of time.
@@ -111,9 +111,9 @@ LEDTask(void *pvParameters) {
 
             // Turn on the user LED.
             #ifdef DEVKIT
-                ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_5, 0);
+                GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_5, 0);
             #else
-                ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_1, 0);
+                GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_1, 0);
             #endif
 
             // Wait for the required amount of time.

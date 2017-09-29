@@ -183,7 +183,7 @@ workstatus_t sendADC(const char* const pcJSONString, const jsmntok_t* const ps_a
 		{
 			ADCProcessorTrigger(ADC0_BASE, 1);
 			while(!adc_rdy) {
-			vTaskDelay(2 / portTICK_RATE_MS);
+                vTaskDelay(2 / portTICK_RATE_MS);
 			}
 			adc_rdy = 0;
 			snprintf(pcResponse, iRespMaxLen, "\"%lu\"", ui32ADC0Value[0]);

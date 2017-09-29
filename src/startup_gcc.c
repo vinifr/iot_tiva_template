@@ -38,6 +38,8 @@
 void ResetISR(void);
 static void NmiSR(void);
 static void FaultISR(void);
+static void UsageFault(void);
+static void BusFault(void);
 static void IntDefaultHandler(void);
 
 //*****************************************************************************
@@ -82,8 +84,8 @@ void (* const g_pfnVectors[])(void) =
     NmiSR,                                  // The NMI handler
     FaultISR,                               // The hard fault handler
     IntDefaultHandler,                      // The MPU fault handler
-    IntDefaultHandler,                      // The bus fault handler
-    IntDefaultHandler,                      // The usage fault handler
+    BusFault,                               // The bus fault handler
+    UsageFault,                             // The usage fault handler
     0,                                      // Reserved
     0,                                      // Reserved
     0,                                      // Reserved
@@ -267,9 +269,9 @@ ResetISR(void)
     // Note that this does not use DriverLib since it might not be included in
     // this project.
     //
-    HWREG(NVIC_CPAC) = ((HWREG(NVIC_CPAC) &
+    /*HWREG(NVIC_CPAC) = ((HWREG(NVIC_CPAC) &
                          ~(NVIC_CPAC_CP10_M | NVIC_CPAC_CP11_M)) |
-                        NVIC_CPAC_CP10_FULL | NVIC_CPAC_CP11_FULL);
+                        NVIC_CPAC_CP10_FULL | NVIC_CPAC_CP11_FULL);*/
 
     //
     // Call the application's entry point.
@@ -309,6 +311,16 @@ FaultISR(void) {
     while (1) {
     }
 
+}
+
+static void UsageFault(void)
+{
+	while(1);
+}
+
+static void BusFault(void)
+{
+	while(1);
 }
 
 //*****************************************************************************
