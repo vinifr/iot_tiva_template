@@ -49,8 +49,11 @@ extern void lwIPEthernetIntHandler(void);
 extern void xPortPendSVHandler(void);
 extern void vPortSVCHandler(void);
 extern void xPortSysTickHandler(void);
-extern void timer1a_interrupt_handler(void);
-extern void pwm0_interrupt_handler(void);
+extern void Timer0IntHandler(void);
+extern void SSI2IntHandler(void);
+
+//extern void timer1a_interrupt_handler(void);
+//extern void pwm0_interrupt_handler(void);
 
 //*****************************************************************************
 //
@@ -111,7 +114,7 @@ void (* const g_pfnVectors[])(void) =
     IntDefaultHandler,                      // ADC Sequence 2
     IntDefaultHandler,                      // ADC Sequence 3
     IntDefaultHandler,                      // Watchdog timer
-    IntDefaultHandler,                      // Timer 0 subtimer A
+    Timer0IntHandler,                      // Timer 0 subtimer A
     IntDefaultHandler,                      // Timer 0 subtimer B
     IntDefaultHandler,                      // Timer 1 subtimer A
     IntDefaultHandler,                      // Timer 1 subtimer B
@@ -146,7 +149,7 @@ void (* const g_pfnVectors[])(void) =
     IntDefaultHandler,                      // GPIO Port J
     IntDefaultHandler,                      // GPIO Port K
     IntDefaultHandler,                      // GPIO Port L
-    IntDefaultHandler,                      // SSI2 Rx and Tx
+    SSI2IntHandler,                      // SSI2 Rx and Tx
     IntDefaultHandler,                      // SSI3 Rx and Tx
     IntDefaultHandler,                      // UART3 Rx and Tx
     IntDefaultHandler,                      // UART4 Rx and Tx

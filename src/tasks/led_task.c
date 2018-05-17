@@ -133,8 +133,8 @@ LEDTask(void *pvParameters) {
 }
 
 // Initializes the LED task.
-uint32_t
-LEDTaskInit(void) {
+uint32_t LEDTaskInit(void)
+{
 
     // Create the LED task.
     if (xTaskCreate(LEDTask, (const portCHAR * const)"LED", STACKSIZE_LEDTASK, NULL, tskIDLE_PRIORITY + PRIORITY_LED_TASK, NULL) != pdTRUE) {

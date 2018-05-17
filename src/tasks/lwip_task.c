@@ -30,7 +30,9 @@
 #include "lwiplib.h"
 #include "httpserver_raw/httpd.h"
 #include "httpserver_raw/fsdata.h"
+#ifdef LWIP_WEBSOCKET
 #include "httpserver_raw/websockd.h"
+#endif
 #include "led_task.h"
 #include "lwip_task.h"
 
@@ -51,7 +53,7 @@ SetupServices(void *pvArg)
     //http_server_netconn_init();
     
     // Initialize websocket server
-    websockd_init();
+    //websockd_init();
 
 }
 

@@ -12,10 +12,6 @@
  * CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  *
- * Author:       Joakim Myrland
- * website:      www.LDA.as
- * email:        joakim.myrland@LDA.as
- * project:      https://github.com/Lindem-Data-Acquisition-AS/iot_tiva_template/
  *
  */
 
@@ -32,8 +28,12 @@
 #include "driverlib/pin_map.h"
 #include "driverlib/rom.h"
 #include "driverlib/rom_map.h"
+#include "driverlib/ssi.h"
+#include "driverlib/sysctl.h"
 #include "driverlib/sysctl.h"
 #include "driverlib/uartstdio.h"
+#include "driverlib/interrupt.h"
+#include "driverlib/timer.h"
 #include "led_task.h"
 #include "lwip_task.h"
 #include "hello_world_task.h"
@@ -44,7 +44,19 @@
 #include "queue.h"
 #include "semphr.h"
 
+// Number of bytes to send and receive.
+#define NUM_SSI_DATA            32
+
+#define GPIO_TEST
+#define SPI_ASYNC
+
 uint32_t g_ui32SysClock;
+uint32_t pui32DataTx[NUM_SSI_DATA];
+uint32_t pui32DataRx[NUM_SSI_DATA];
+uint8_t gpio_st;
+
+uint32_t captureMSec;
+uint32_t captureTime;
 
 #ifdef DEBUG
 void
@@ -61,8 +73,78 @@ vApplicationStackOverflowHook(xTaskHandle *pxTask, signed char *pcTaskName) {
 
 }
 
-void
-pin_init(void) {
+void SSI2IntHandler(void)
+{
+    unsigned long ulStatus;
+
+	// Read interrupt status
+	ulStatus = SSIIntStatus(SSI2_BASE, 1);
+
+    //if (ulStatus & SSI_TXEOT)
+        //GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_2, GPIO_PIN_2);
+
+    // Clear interrupts
+    SSIIntClear(SSI2_BASE, ulStatus);
+}
+
+void Timer0IntHandler(void)
+{
+    // Clear the timer interrupt
+    ROM_TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
+
+    captureMSec++;
+
+    if(captureMSec <= captureTime) {
+#ifdef SPI_ASYNC
+        //GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_2, 0);
+        SSIDataPutNonBlocking(SSI2_BASE, pui32DataTx[0]);
+        SSIDataPutNonBlocking(SSI2_BASE, pui32DataTx[1]);
+        SSIDataPutNonBlocking(SSI2_BASE, pui32DataTx[2]);
+        //SSIDataPutNonBlocking(SSI2_BASE, pui32DataTx[3]);
+        SSIAdvDataPutFrameEndNonBlocking(SSI2_BASE, pui32DataTx[3]);
+#else
+        GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_2, 0);
+        SSIDataPut(SSI2_BASE, pui32DataTx[0]);
+        SSIDataPut(SSI2_BASE, pui32DataTx[1]);
+        SSIDataPut(SSI2_BASE, pui32DataTx[2]);
+        SSIDataPut(SSI2_BASE, pui32DataTx[3]);
+        GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_2, GPIO_PIN_2);
+#endif
+    }
+
+#ifdef GPIO_TEST
+	if (gpio_st) {
+		gpio_st = 0;
+		ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_3, GPIO_PIN_3);
+	} else {
+		gpio_st = 1;
+		ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_3, 0);
+	}
+#endif
+}
+
+void TimerConfig(void)
+{
+    // Enable the peripherals used by this example.
+    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0);
+
+    // Configure the two 32-bit periodic timers.  The period of the timer for
+    // FreeRTOS run time stats must be at least 10 times faster than the tick
+    // rate
+    ROM_TimerConfigure(TIMER0_BASE, TIMER_CFG_PERIODIC);
+    // 100 uS
+    ROM_TimerLoadSet(TIMER0_BASE, TIMER_A, (g_ui32SysClock) /
+                                           (10000));
+
+    // Setup the interrupts for the timer timeouts.
+    ROM_IntEnable(INT_TIMER0A);
+    ROM_TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
+
+    TimerEnable(TIMER0_BASE, TIMER_A);
+}
+
+void pin_init(void)
+{
 
     // Enable all the GPIO peripherals
     ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
@@ -134,8 +216,79 @@ void ConfigureUART(void)
     UARTStdioConfig(0, 115200, g_ui32SysClock);
 }
 
-int
-main(void) {
+void InitSPI()
+{
+    //
+    // The SSI2 peripheral must be enabled for use.
+    //
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_SSI2);
+
+    //
+    // For this example SSI2 is used with PortD[0:3].
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPION);
+
+    //
+    // Configure the pin muxing for SSI2 functions on port Q0, Q1, Q2 and Q3.
+    // This step is not necessary if your part does not support pin muxing.
+    //
+    GPIOPinConfigure(GPIO_PD3_SSI2CLK); // SCLK
+    GPIOPinConfigure(GPIO_PD1_SSI2XDAT0);   // MOSI
+    GPIOPinConfigure(GPIO_PD0_SSI2XDAT1);   // MISO
+    GPIOPinConfigure(GPIO_PD2_SSI2FSS); // CS
+    //GPIOPinTypeGPIOOutput(GPIO_PORTN_BASE, GPIO_PIN_2); // CS - configure it as GPIO output
+    //GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_2, GPIO_PIN_2); // CS - set it to logic HIGH
+
+    //
+    // Configure the GPIO settings for the SSI pins.  This function also gives
+    // control of these pins to the SSI hardware.  Consult the data sheet to
+    // see which functions are allocated per pin.
+    // The pins are assigned as follows:
+    //      PD0 - SSI2Rx MISO
+    //      PD1 - SSI2Tx MOSI
+    //      PN2 - SSI2Fss
+    //      PD3 - SSI2CLK
+    //
+    GPIOPinTypeSSI(GPIO_PORTD_BASE, GPIO_PIN_3 | GPIO_PIN_2 | GPIO_PIN_1 | GPIO_PIN_0);
+
+    //
+    // Configure and enable the SSI port for SPI master mode.  Use SSI2,
+    // system clock supply, idle clock level low and active low clock in
+    // Freescale SPI mode, master mode, 3 MHz SSI frequency, and 8-bit data.
+    // For SPI mode, you can set the polarity of the SSI clock when the SSI
+    // unit is idle.
+    //
+    SSIConfigSetExpClk(SSI2_BASE, g_ui32SysClock, SSI_FRF_MOTO_MODE_0,
+                       SSI_MODE_MASTER, 3000000, 8);
+
+    SSIAdvModeSet(SSI2_BASE, SSI_ADV_MODE_READ_WRITE);
+    // de-assert the SSIFss signal during the entire data transfer
+    SSIAdvFrameHoldEnable(SSI2_BASE);
+
+    //
+    // Enable the SSI2 module.
+    //
+    SSIEnable(SSI2_BASE);
+#ifdef SPI_ASYNC
+    //SSIIntEnable(SSI2_BASE, SSI_TXEOT);
+    //SSIIntClear(SSI2_BASE, SSI_TXEOT);
+#endif
+
+    //
+    // Read any residual data from the SSI port.  This makes sure the receive
+    // FIFOs are empty, so we don't read any unwanted junk.  This is done here
+    // because the SPI SSI mode is full-duplex, which allows you to send and
+    // receive at the same time.  The SSIDataGetNonBlocking function returns
+    // "true" when data was returned, and "false" when no data was returned.
+    // The "non-blocking" function checks if there is any data in the receive
+    // FIFO and does not "hang" if there isn't.
+    //
+    while(SSIDataGetNonBlocking(SSI2_BASE, &pui32DataRx[0]))
+    {
+    }
+}
+
+int main(void) {
 
     // Run from the PLL at 120 MHz.
     g_ui32SysClock = MAP_SysCtlClockFreqSet((SYSCTL_XTAL_25MHZ |
@@ -147,16 +300,28 @@ main(void) {
     // Initialize the device pinout appropriately for this board.
     pin_init();
     
-    //
-    // Initialize the UART and write status.
-    //
-    ConfigureUART();
-
     // Make sure the main oscillator is enabled because this is required by
     // the PHY.  The system must have a 25MHz crystal attached to the OSC
     // pins.  The SYSCTL_MOSC_HIGHFREQ parameter is used when the crystal
     // frequency is 10MHz or higher.
     SysCtlMOSCConfigSet(SYSCTL_MOSC_HIGHFREQ);
+
+    ConfigureUART();
+    InitSPI();
+    TimerConfig();
+
+    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPION); //Enable the GPIO port N
+	ROM_GPIOPinTypeGPIOOutput(GPIO_PORTN_BASE, GPIO_PIN_3);
+	ROM_GPIODirModeSet(GPIO_PORTN_BASE, GPIO_PIN_3, GPIO_DIR_MODE_OUT);
+	ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_3, GPIO_PIN_3);
+
+    pui32DataTx[0] = 0x80;
+    pui32DataTx[1] = 0x00;
+    pui32DataTx[2] = 0x00;
+    pui32DataTx[3] = 0x00;
+    captureTime = 10 * 1000000; // 10 sec in uS
+    captureTime = (captureTime / 1000);
+    captureMSec = 0;
 
     // Create the LED task.
     if (LEDTaskInit() != 0) {
@@ -167,12 +332,10 @@ main(void) {
     }
 
     // Create the lwIP tasks.
-    if (lwIPTaskInit() != 0) {
-
+    /*if (lwIPTaskInit() != 0) {
         while (1) {
         }
-
-    }
+    }*/
 
     // Create the hello world task.
     /*if (hello_world_init() != 0) {
